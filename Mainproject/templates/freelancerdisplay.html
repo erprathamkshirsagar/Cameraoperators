@@ -1,0 +1,473 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<!-- Bootstrap -->
+
+
+
+
+		<!-- Bootstrap -->
+		{% load static %}
+
+<style>
+
+  /* ===================================================================
+   1. FREELANCER PAGE WRAPPER & LAYOUT
+   =================================================================== */
+.freelancer-layout {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+.freelancer-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.freelancer-col-left {
+    width: 25%;
+}
+
+.freelancer-col-right {
+    width: 75%;
+}
+
+
+/* ===================================================================
+   2. FILTER SIDEBAR CARD
+   =================================================================== */
+.filter-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.filter-card .card-header {
+    padding: 12px 14px;
+    font-weight: 600;
+    background: #000;
+    color: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 12px 12px 0 0;
+}
+
+.filter-card .card-body {
+    padding: 14px;
+}
+
+
+/* ===================================================================
+   3. FILTER FORM ELEMENTS (LABELS, SELECTS, INPUTS)
+   =================================================================== */
+.filter-card label,
+.filter-label {
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.filter-card select,
+.filter-card input,
+.filter-input {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+
+/* ===================================================================
+   4. FILTER ACTION BUTTON
+   =================================================================== */
+.btn-primary {
+    width: 100%;
+    background: #2563eb;
+    color: #fff;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+
+/* ===================================================================
+   5. SKILL FILTER (RADIO PILLS)
+   =================================================================== */
+.skill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.skill-item {
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    user-select: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.skill-item input[type="radio"] {
+    display: none;
+}
+
+.skill-item.skill-active {
+    background-color: #d10024;
+    color: #fff;
+    border-color: #d10024;
+}
+
+.skill-item:hover {
+    border-color: #d10024;
+}
+
+
+/* ===================================================================
+   6. LIST GROUP ITEM (OPTIONAL LEGACY SUPPORT)
+   =================================================================== */
+.list-group-item {
+    border: 1px solid #e5e7eb;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+
+.list-group-item input {
+    margin-right: 6px;
+}
+
+
+/* ===================================================================
+   7. FREELANCER RESULT CARD (ROW STYLE)
+   =================================================================== */
+.freelancer-box {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+/* ===================================================================
+   8. FREELANCER AVATAR / PROFILE IMAGE
+   =================================================================== */
+.freelancer-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+
+/* ===================================================================
+   9. FREELANCER SKILL TAGS
+   =================================================================== */
+.skill-chip {
+    display: inline-block;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 20px;
+    margin: 2px;
+}
+
+
+/* ===================================================================
+   10. VIEW PROFILE ACTION BUTTON
+   =================================================================== */
+.btn-profile {
+    background: #d10024;
+    color: #f7eded;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.btn-profile:hover {
+    background-color: #d10024;
+    color: #fff;
+}
+
+
+/* ===================================================================
+   11. PAGE HEADER (TITLE + LOCATION)
+   =================================================================== */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+
+/* ===================================================================
+   12. WARNING & EMPTY STATE MESSAGE
+   =================================================================== */
+.alert-warning {
+    background: #fff7ed;
+    padding: 12px;
+    border-radius: 8px;
+    color: #9a1212;
+}
+
+
+/* ===================================================================
+   13. RESPONSIVE BREAKPOINTS
+   =================================================================== */
+@media (max-width: 768px) {
+    .freelancer-row {
+        flex-direction: column;
+    }
+
+    .freelancer-col-left,
+    .freelancer-col-right {
+        width: 100%;
+    }
+}
+
+</style>
+    </head>
+	<body>
+<div>
+
+
+<div class="freelancer-layout">
+
+  <div class="freelancer-row">
+
+    <!-- ✅ LEFT FILTER -->
+<div class="freelancer-col-left">
+
+  <div class="filter-card">
+<div class="card-header" style="color: white;">
+  Filter by Location & Skills
+</div>
+
+    <div class="card-body">
+      <form method="get" action="{% url 'freelancerdisplay' %}">
+
+        <!-- Location filters -->
+        <label for="country">Country</label>
+        <select id="country" name="country" onchange="this.form.submit()">
+          <option value="">All</option>
+          {% for country in countries %}
+          <option value="{{ country.id }}" {% if selected_country == country.id %}selected{% endif %}>
+            {{ country.name }}
+          </option>
+          {% endfor %}
+        </select>
+
+        <label for="state">State</label>
+        <select id="state" name="state" onchange="this.form.submit()">
+          <option value="">All</option>
+          {% for state in states %}
+          <option value="{{ state.id }}" {% if selected_state == state.id %}selected{% endif %}>
+            {{ state.name }}
+          </option>
+          {% endfor %}
+        </select>
+
+        <label for="city">City</label>
+        <select id="city" name="city" onchange="this.form.submit()">
+          <option value="">All</option>
+          {% for city in cities %}
+          <option value="{{ city.id }}" {% if selected_city == city.id %}selected{% endif %}>
+            {{ city.name }}
+          </option>
+          {% endfor %}
+        </select>
+
+        <label for="taluka">Taluka</label>
+        <select id="taluka" name="taluka" onchange="this.form.submit()">
+          <option value="">All</option>
+          {% for taluka in talukas %}
+          <option value="{{ taluka.id }}" {% if selected_taluka == taluka.id %}selected{% endif %}>
+            {{ taluka.name }}
+          </option>
+          {% endfor %}
+        </select>
+
+        <label for="village">Village</label>
+        <select id="village" name="village" onchange="this.form.submit()">
+          <option value="">All</option>
+          {% for village in villages %}
+          <option value="{{ village.id }}" {% if selected_village == village.id %}selected{% endif %}>
+            {{ village.name }}
+          </option>
+          {% endfor %}
+        </select>
+
+        <!-- Skills Filter -->
+        <label class="filter-label">Skills</label>
+        <div class="skill-list" role="radiogroup" aria-label="Skill categories">
+          <label class="skill-item {% if selected_category == 0 %}skill-active{% endif %}">
+            <input 
+              type="radio" 
+              name="category" 
+              value="0" 
+              {% if selected_category == 0 %}checked{% endif %}
+              aria-checked="{% if selected_category == 0 %}true{% else %}false{% endif %}"
+              onchange="this.form.submit()"
+            >
+            All Skills
+          </label>
+
+          {% for category in subcategories %}
+          <label class="skill-item {% if selected_category == category.id %}skill-active{% endif %}">
+            <input 
+              type="radio" 
+              name="category" 
+              value="{{ category.id }}" 
+              {% if selected_category == category.id %}checked{% endif %}
+              aria-checked="{% if selected_category == category.id %}true{% else %}false{% endif %}"
+              onchange="this.form.submit()"
+            >
+            {{ category.name }}
+          </label>
+          {% endfor %}
+        </div>
+
+        <!-- Price Range -->
+        <label for="min_price">Min Price (₹)</label>
+        <input 
+          type="number" 
+          id="min_price" 
+          name="min_price" 
+          class="filter-input" 
+          placeholder="Min ₹" 
+          value="{{ min_price }}"
+        >
+
+        <label for="max_price">Max Price (₹)</label>
+        <input 
+          type="number" 
+          id="max_price" 
+          name="max_price" 
+          class="filter-input" 
+          placeholder="Max ₹" 
+          value="{{ max_price }}"
+        >
+
+      <button type="submit" class="btn-primary mt-3" style="background-color: #d10024; color: white;">
+  Apply Filters
+</button>
+
+
+
+      </form>
+    </div>
+
+  </div>
+</div>
+
+    <!-- ✅ RIGHT FREELANCERS -->
+<div class="freelancer-col-right">
+
+  <div class="section-header">
+    <h3>Top Freelancers</h3>
+    <p><span id="current-city">📍 {{ current_city_name|default:"Location not found" }}
+</span></p>
+
+  </div>
+
+  <!-- ✅ Nearby freelancers (JS will manage this) -->
+  <div id="nearby-freelancers" style="display:none;"></div>
+
+  <!-- ✅ Message when nearby not detected -->
+  <div id="nearby-not-found" class="alert-warning" style="display:none;">
+    😕 Nearby freelancers not detected. You can search manually.
+  </div>
+
+  <!-- ✅ Manual / default freelancers (Django rendering) -->
+  <div id="manual-freelancers">
+    {% if freelancers %}
+      {% for freelancer in freelancers %}
+      <div class="freelancer-box">
+
+        <div style="display:flex; gap:12px; align-items:center;">
+          <img src="{% if freelancer.profile_image %}{{ freelancer.profile_image.url }}{% else %}{% static 'default_user.png' %}{% endif %}"
+               class="freelancer-img">
+
+          <div>
+            <strong>
+              {{ freelancer.first_name }} {{ freelancer.surname }}
+              {% if freelancer.profile_status == 'verified' %}
+              <img src="{% static 'img/verified.png' %}" style="width:16px;">
+              {% endif %}
+            </strong>
+
+            <div>
+              {% for skill in freelancer.skills.all %}
+                <span class="skill-chip">{{ skill.category.name }}</span>
+              {% empty %}
+                <small>No skills listed</small>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <a href="{% url 'freelancer_profile' freelancer.id %}" class="btn-profile">
+          View Profile
+        </a>
+
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="alert-warning">No freelancers found</div>
+    {% endif %}
+  </div>
+
+</div>
+
+</div>
+</div>
+<br>
+
+
+<script>
+  function sendLocationToServer(lat, lng) {
+    fetch("{% url 'set_user_location' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({ latitude: lat, longitude: lng }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Location saved:", data);
+      // Optionally reload page or fetch updated freelancers here
+    })
+    .catch(error => console.error("Error saving location:", error));
+  }
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        sendLocationToServer(position.coords.latitude, position.coords.longitude);
+      },
+      function(error) {
+        console.warn("Geolocation error:", error);
+      }
+    );
+  } else {
+    console.warn("Geolocation not supported");
+  }
+</script> 
+
+{% endblock %}

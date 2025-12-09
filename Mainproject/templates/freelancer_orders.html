@@ -1,0 +1,195 @@
+
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+
+<div class="container my-4">
+
+  <h2 class="mb-4 fw-bold text-red">
+    Orders for {{ freelancer.first_name }} {{ freelancer.surname }}
+  </h2>
+
+  {% if bookings %}
+  <div class="table-responsive shadow-sm rounded-3 overflow-hidden">
+
+    <table class="table table-bordered table-hover table-red-black align-middle">
+      <thead class="text-center">
+        <tr>
+          <th>Client</th>
+          <th>Mobile</th>
+          <th>Skill</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Location</th>
+          <th>Description</th>
+          <th>Booked At</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody class="text-center">
+
+        {% for booking in bookings %}
+        <tr>
+
+          <!-- Client -->
+          <td class="fw-semibold">{{ booking.client.first_name }} {{ booking.client.surname }}</td>
+
+          <!-- Mobile -->
+          <td>{{ booking.client.mobile }}</td>
+
+          <!-- Skill -->
+          <td>
+            <span class="badge badge-black">{{ booking.skill.category }}</span>
+          </td>
+
+          <!-- Start -->
+          <td>
+            {{ booking.start_date|date:"d M Y" }}<br>
+            <small>{{ booking.start_time|time:"h:i A" }}</small>
+          </td>
+
+          <!-- End -->
+          <td>
+            {{ booking.end_date|date:"d M Y" }}<br>
+            <small>{{ booking.end_time|time:"h:i A" }}</small>
+          </td>
+
+          <!-- Location -->
+          <td>{{ booking.location }}</td>
+
+          <!-- Description -->
+          <td class="description-cell" title="{{ booking.description }}">
+            {% if booking.description %}
+              {{ booking.description }}
+            {% else %}
+              <span class="text-muted">No description</span>
+            {% endif %}
+          </td>
+
+          <!-- Booking Time -->
+          <td>
+            {{ booking.created_at|date:"d M Y" }}<br>
+            <small>{{ booking.created_at|time:"h:i A" }}</small>
+          </td>
+
+          <!-- Status -->
+          <td>
+            {% if booking.status == "accepted" %}
+              <span class="badge badge-black">Accepted</span>
+            {% elif booking.status == "cancelled" %}
+              <span class="badge badge-red">Cancelled</span>
+            {% elif booking.status == "completed" %}
+              <span class="badge badge-black">Completed</span>
+            {% else %}
+              <span class="badge badge-red text-white">Pending</span>
+            {% endif %}
+          </td>
+
+          <!-- Actions -->
+          <td>
+
+            {% if booking.status == "pending" %}
+              <form method="post" action="{% url 'accept_booking' booking.id %}"
+                    class="d-inline-block">
+                {% csrf_token %}
+                <button class="btn btn-black btn-sm">
+                  Accept
+                </button>
+              </form>
+            {% endif %}
+
+            {% if booking.status != "cancelled" %}
+              <form method="post"
+                    action="{% url 'cancel_booking' booking.id %}"
+                    class="d-inline-block ms-1"
+                    onsubmit="return confirm('Cancel this booking?');">
+                {% csrf_token %}
+                <button class="btn btn-red btn-sm">
+                  Cancel
+                </button>
+              </form>
+            {% endif %}
+
+          </td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+
+  </div>
+
+  {% else %}
+    <p class="alert alert-danger text-center">No bookings found.</p>
+  {% endif %}
+</div>
+
+
+<div class="container my-4">
+
+  <h2 class="mb-4 fw-bold text-red">
+    Product Rental Orders for {{ owner.first_name }} {{ owner.surname }}
+  </h2>
+
+  {% if product_bookings %}
+  <div class="table-responsive shadow-sm rounded-3 overflow-hidden">
+
+    <table class="table table-bordered table-hover table-red-black align-middle">
+      <thead class="text-center">
+        <tr>
+          <th>Product</th>
+          <th>Booked By</th>
+          <th>Mobile</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Booked At</th>
+        </tr>
+      </thead>
+
+      <tbody class="text-center">
+        {% for booking in product_bookings %}
+        <tr>
+
+          <!-- Product Title -->
+          <td>
+            <strong>{{ booking.product.title }}</strong><br>
+            <small class="text-muted">{{ booking.product.category }}</small>
+          </td>
+
+          <!-- User -->
+          <td>{{ booking.user.first_name }} {{ booking.user.surname }}</td>
+
+          <!-- Mobile Number -->
+          <td>{{ booking.user.mobile }}</td>
+
+          <!-- Start -->
+          <td>{{ booking.start_date|date:"d M Y" }}</td>
+
+          <!-- End -->
+          <td>{{ booking.end_date|date:"d M Y" }}</td>
+
+          <!-- Created -->
+          <td>
+            {{ booking.created_at|date:"d M Y" }}<br>
+            <small>{{ booking.created_at|time:"h:i A" }}</small>
+          </td>
+
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+
+  </div>
+
+  {% else %}
+    <p class="alert alert-danger text-center">No product bookings found.</p>
+  {% endif %}
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile | CameraOperator{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-img-container {
+    width: 150px;
+    height: 150px;
+    margin: auto;
+}
+
+input[type="file"] {
+    display: none !important;
+}
+
+.profile-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    border: 3px solid #0d6efd;
+    transition: .3s;
+}
+
+.profile-img:hover {
+    opacity: .8;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container my-5">
+
+    <h3 class="mb-4 text-center">My Profile</h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- PROFILE IMAGE -->
+                <div class="text-center mb-4">
+                    <div class="profile-img-container mb-3">
+                        <img id="profilePreview"
+                             src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'default_user.png' %}{% endif %}"
+                             class="profile-img">
+                    </div>
+<br>
+                    <label for="profileImageInput"
+                           class="btn btn-primary btn-sm px-4 shadow-sm">
+                        Upload Photo
+                    </label>
+                    <input type="file" id="profileImageInput"
+                           name="profile_image" accept="image/*">
+                </div>
+
+                <!-- NAME -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control"
+                               name="first_name" value="{{ user.first_name }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Middle Name</label>
+                        <input type="text" class="form-control"
+                               name="middle_name" value="{{ user.middle_name }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Surname</label>
+                        <input type="text" class="form-control"
+                               name="surname" value="{{ user.surname }}">
+                    </div>
+                </div>
+
+                <!-- DOB + ADDRESS -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="text" class="form-control"
+                               name="dob" value="{{ user.dob|date:'d-m-Y' }}">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" rows="3"
+                                  name="address">{{ user.address }}</textarea>
+                    </div>
+                </div>
+
+                <!-- LOCATION -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Country</label>
+                        <select name="country" id="country" class="form-control">
+                            <option value="">-- Select Country --</option>
+                            {% for country in countries %}
+                            <option value="{{ country.id }}"
+                                {% if user.country.id == country.id %}selected{% endif %}>
+                                {{ country.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">State</label>
+                        <select name="state" id="state" class="form-control">
+                            {% if user.state %}
+                            <option value="{{ user.state.id }}">{{ user.state.name }}</option>
+                            {% else %}
+                            <option value="">-- Select State --</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">City</label>
+                        <select name="city" id="city" class="form-control">
+                            {% if user.city %}
+                            <option value="{{ user.city.id }}">{{ user.city.name }}</option>
+                            {% else %}
+                            <option value="">-- Select City --</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Taluka</label>
+                        <select name="taluka" id="taluka" class="form-control">
+                            {% if user.taluka %}
+                            <option value="{{ user.taluka.id }}">{{ user.taluka.name }}</option>
+                            {% else %}
+                            <option value="">-- Select Taluka --</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mt-3">
+                        <label class="form-label">Village</label>
+                        <select name="village" id="village" class="form-control">
+                            {% if user.village %}
+                            <option value="{{ user.village.id }}">{{ user.village.name }}</option>
+                            {% else %}
+                            <option value="">-- Select Village --</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- FIRM -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Firm Name</label>
+                        <input type="text" class="form-control"
+                               name="firm_name" value="{{ user.firm_name }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Firm Address</label>
+                        <input type="text" class="form-control"
+                               name="firm_address" value="{{ user.firm_address }}">
+                    </div>
+                </div>
+
+                <!-- CONTACT -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label>Email</label>
+                        <input class="form-control" value="{{ user.email }}" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Mobile</label>
+                        <input class="form-control" value="{{ user.mobile }}" disabled>
+                    </div>
+                </div>
+                <br>
+
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg px-5">
+                        Update Profile
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+<br>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(function(){
+
+    function reset(el, text){
+        $(el).html('<option value="">' + text + '</option>');
+    }
+
+    $('#country').change(function(){
+        reset('#state','-- Select State --');
+        reset('#city','-- Select City --');
+        reset('#taluka','-- Select Taluka --');
+        reset('#village','-- Select Village --');
+
+        $.get("{% url 'ajax_load_states' %}", {country_id:this.value}, function(d){
+            d.forEach(s => $('#state').append(`<option value="${s.id}">${s.name}</option>`));
+        });
+    });
+
+    $('#state').change(function(){
+        reset('#city','-- Select City --');
+        reset('#taluka','-- Select Taluka --');
+        reset('#village','-- Select Village --');
+
+        $.get("{% url 'ajax_load_cities' %}", {state_id:this.value}, function(d){
+            d.forEach(c => $('#city').append(`<option value="${c.id}">${c.name}</option>`));
+        });
+    });
+
+    $('#city').change(function(){
+        reset('#taluka','-- Select Taluka --');
+        reset('#village','-- Select Village --');
+
+        $.get("{% url 'ajax_load_talukas' %}", {city_id:this.value}, function(d){
+            d.forEach(t => $('#taluka').append(`<option value="${t.id}">${t.name}</option>`));
+        });
+    });
+
+    $('#taluka').change(function(){
+        reset('#village','-- Select Village --');
+
+        $.get("{% url 'ajax_load_villages' %}", {taluka_id:this.value}, function(d){
+            d.forEach(v => $('#village').append(`<option value="${v.id}">${v.name}</option>`));
+        });
+    });
+
+    $('#profileImageInput').change(function(){
+        this.form.submit();
+    });
+
+});
+</script>
+{% endblock %}

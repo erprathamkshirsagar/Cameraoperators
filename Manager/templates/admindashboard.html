@@ -1,0 +1,202 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #003f8c;
+      --secondary-color: #ffc107;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+    }
+
+    .navbar {
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      height: 60px;
+      z-index: 1050;
+    }
+
+    .navbar-brand img {
+      height: 40px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      width: 230px;
+      height: calc(100% - 60px);
+      background-color: var(--primary-color);
+      padding-top: 20px;
+      transition: transform 0.3s ease;
+      z-index: 1040;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #fff;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-size: 15px;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #0052b8;
+      border-left: 4px solid var(--secondary-color);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 230px;
+      padding: 80px 30px 30px;
+      transition: margin-left 0.3s ease;
+    }
+
+    /* Form Container */
+    .form-container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background-color: #002f6c;
+      border-color: #002f6c;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 991px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding-top: 80px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 80px 15px 30px;
+      }
+
+      .navbar .username {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top px-3">
+    <button class="btn btn-outline-primary d-lg-none me-2" id="menu-toggle">
+      <i class="bi bi-list"></i>
+    </button>
+    <a class="navbar-brand" href="{% url 'dashboard' %}">
+      <img src="{% static 'logo1.png' %}" alt="Logo">
+    </a>
+    <span class="ms-auto fw-semibold username">👤 {{ request.user.username }}</span>
+  </nav>
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <!-- Dashboard -->
+  <a href="{% url 'admindashboard' %}" class="active">
+    <i class="bi bi-house"></i> Dashboard
+  </a>
+  
+  <!-- Manage Categories -->
+  <a href="{% url 'manage_categories' %}">
+    <i class="bi bi-file-earmark-text"></i> Manage Categories
+  </a>
+  
+  <!-- Manage Locations -->
+  <a href="{% url 'manage_locations' %}">
+    <i class="bi bi-map"></i> Manage Locations
+  </a>
+
+  <!-- Verification Document List -->
+  <a href="{% url 'verifydocumentslist' %}">
+    <i class="bi bi-file-earmark-check"></i> Verification Docs List
+  </a>
+
+  <!-- Users -->
+  <a href="{% url 'adminuserdetails' %}">
+    <i class="bi bi-person"></i> Users
+  </a>
+
+  <!-- Product Management -->
+  <a href="{% url 'productmanager' %}">
+    <i class="bi bi-box"></i> Product Management
+  </a>
+
+  <!-- Logout -->
+  <a href="{% url 'adminlogout' %}">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>   
+</div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    {% block content %}
+    <!-- Dashboard content goes here -->
+    {% endblock %}
+  </div>
+
+  <!-- JS -->
+  <script>
+    document.getElementById("menu-toggle").addEventListener("click", function () {
+      document.getElementById("sidebar").classList.toggle("active");
+    });
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

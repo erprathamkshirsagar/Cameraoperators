@@ -1,0 +1,548 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+
+
+{% block content %}
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+<style>
+
+	/* Ensure the images are displayed fully */
+.product-imgg {
+    height: 280px; /* Set the desired height for the container */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;  /* Hide overflow */
+}
+
+/* Make sure the images maintain their aspect ratio and are fully visible */
+.product-imgg img {
+    height: 100%;         /* Make the image fit within the height */
+    width: 100%;          /* Allow the image to take up the full width */
+    object-fit: contain;  /* Ensure the full image is visible without cropping */
+}
+
+/* Optional: Adjust product card layout to maintain consistency */
+.product {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* Optional: Add padding and margin for consistent spacing */
+.product-body, .add-to-cart {
+    padding: 15px;
+}
+
+/* Make sure the "View Detail" button is aligned properly */
+.add-to-cart-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 14px;
+}
+
+</style>
+
+
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<!-- shop -->
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="{% static 'img/shop01.png' %}" alt="">
+
+							</div>
+							<div class="shop-body">
+								<h3>Free<br>Lancer</h3>
+								<a href="{% url 'freelancerdisplay' %}" class="cta-btn">Appointment Now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- /shop -->
+
+					<!-- shop -->
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="{% static 'img/shop03.png' %}" alt="">
+
+							</div>
+							<div class="shop-body">
+								<h3>Rental<br>Products</h3>
+								<a href="{% url 'product_display' %}?type=rent" class="cta-btn">View Now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- /shop -->
+
+					<!-- shop -->
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="{% static 'img/shop02.png' %}" alt="">
+
+							</div>
+							<div class="shop-body">
+								<h3>Sell<br>Product</h3>
+								<a href="{% url 'product_display' %}?type=sell" class="cta-btn">View Now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+					<!-- /shop -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+
+<!-- SECTION: Products -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <!-- section title -->
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">Products</h3>
+                    <div class="section-nav">
+                        <ul class="section-tab-nav tab-nav">
+                            <!-- Category Filter List -->
+                            <ul class="category-list">
+                                <!-- "All Categories" Tab (Active by Default if No Category Selected) -->
+                                <li class="category-item">
+                                    <a href="?" class="{% if not selected_category %}active{% endif %}" data-toggle="tab">All Categories</a>
+                                </li>
+                                
+                                <!-- Loop Through Categories for Products -->
+                                {% for category in product_categories %}
+                                    <li class="category-item">
+                                        <a href="?category={{ category.id }}&type=all" 
+                                           class="{% if category.id|stringformat:'s' == selected_category %}active{% endif %}">
+                                           {{ category.name }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products Section -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- Products Display -->
+                        <div id="tab1" class="tab-pane active">
+                            <div class="products-slick" data-nav="#slick-nav-1">
+                                <!-- Loop Through Products -->
+                                {% for product in all_products %}
+                                    <div class="product">
+                                        <div class="product-imgg">
+                                            <img src="{% if product.images.all %}{{ product.images.all.0.image.url }}{% else %}{% static 'img/default-product.png' %}{% endif %}" alt="{{ product.title }}">
+                                        </div>
+                                        <div class="product-body">
+                                            <p class="product-category">{{ product.product_model.brand.category.name }}</p>
+                                            <h3 class="product-name"><a href="#">{{ product.title }}</a></h3>
+                                            <h4 class="product-price">
+                                                {% if product.price and product.rent_per_day %}
+                                                    {{ product.price|intcomma }} /- / {{ product.rent_per_day|intcomma }} /- per day
+                                                {% elif product.price %}
+                                                    {{ product.price|intcomma }} /-
+                                                {% elif product.rent_per_day %}
+                                                    {{ product.rent_per_day|intcomma }} /- per day
+                                                {% else %}
+                                                    Price not available
+                                                {% endif %}
+                                            </h4>
+                                        </div>
+                                        <div class="add-to-cart">
+                                            <!-- View Detail Button Linking to the Product Detail Page -->
+                                            <a href="{% url 'product_detail' product.id %}" class="add-to-cart-btn">
+                                                <i class="fa fa-eye"></i> View Detail
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div id="slick-nav-1" class="products-slick-nav"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /Products Section -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+
+<!-- SECTION: Sell Products -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <!-- section title -->
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">Sell Products</h3>
+                    <div class="section-nav">
+                        <ul class="section-tab-nav tab-nav">
+
+                            <!-- Category Filter List -->
+                            <ul class="category-list">
+                               
+                            </ul>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products Section -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- Products Display for Sell Products -->
+                        <div id="tab1" class="tab-pane active">
+                            <div class="products-slick" data-nav="#slick-nav-1">
+                                <!-- Loop Through Sell Products -->
+                                {% for product in sell_products %}
+                                <div class="product">
+                                    <div class="product-imgg">
+                                        <img src="{% if product.images.all %}{{ product.images.all.0.image.url }}{% else %}{% static 'img/default-product.png' %}{% endif %}" alt="{{ product.title }}">
+                                    </div>
+                                    <div class="product-body">
+                                        <p class="product-category">{{ product.product_model.brand.category.name }}</p>
+                                        <h3 class="product-name"><a href="#">{{ product.title }}</a></h3>
+                                        <h4 class="product-price">
+                                        {% if product.price and product.rent_per_day %}
+                                            {{ product.price|intcomma }} /- / {{ product.rent_per_day|intcomma }} /- per day
+                                        {% elif product.price %}
+                                            {{ product.price|intcomma }} /-
+                                        {% elif product.rent_per_day %}
+                                            {{ product.rent_per_day|intcomma }} /- per day
+                                        {% else %}
+                                            Price not available
+                                        {% endif %}
+                                    </h4>
+                                    </div>
+                                    <div class="add-to-cart">
+                                        <!-- View Detail Button Linking to the Product Detail Page -->
+                                        <a href="{% url 'product_detail' product.id %}" class="add-to-cart-btn">
+                                            <i class="fa fa-eye"></i> View Detail
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                <!-- /product -->
+                            </div>
+                            <div id="slick-nav-1" class="products-slick-nav"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /Products Section -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-4 col-xs-6">
+						<div class="section-title">
+							<h4 class="title">Top Freelancer</h4>
+							<div class="section-nav">
+								<div id="slick-nav-3" class="products-slick-nav"></div>
+							</div>
+						</div>
+
+						<div class="products-widget-slick" data-nav="#slick-nav-3">
+							<div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product07.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product08.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product09.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- product widget -->
+							</div>
+
+							<div>
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product01.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product02.png' %}" alt="">
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- /product widget -->
+
+								<!-- product widget -->
+								<div class="product-widget">
+									<div class="product-img">
+										<img src="{% static 'img/product03.png' %}" alt="">
+
+									</div>
+									<div class="product-body">
+										<p class="product-category">Category</p>
+										<h3 class="product-name"><a href="#">product name goes here</a></h3>
+										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+									</div>
+								</div>
+								<!-- product widget -->
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-xs-6">
+						<div class="section-title">
+							<h4 class="title">Top Rentals</h4>
+							<div class="section-nav">
+								<div id="slick-nav-4" class="products-slick-nav"></div>
+							</div>
+						</div>
+
+						<div class="products-widget-slick" data-nav="#slick-nav-4">
+					<div>
+						<!-- Loop through rent products -->
+						{% for product in rent_products %}
+						<div class="product-widget">
+							<div class="product-img">
+								<!-- Use dynamic product image -->
+								<img src="{% if product.images.all %}{{ product.images.all.0.image.url }}{% else %}{% static 'img/default-product.png' %}{% endif %}" alt="{{ product.title }}">
+							</div>
+							<div class="product-body">
+								<p class="product-category">{{ product.product_model.brand.category.name }}</p>
+								<h3 class="product-name"><a href="{% url 'product_detail' product.id %}">{{ product.title }}</a></h3>
+								<h4 class="product-price">
+									{% if product.price and product.rent_per_day %}
+										{{ product.price|intcomma }} /- / {{ product.rent_per_day|intcomma }} /- per day
+									{% elif product.price %}
+										{{ product.price|intcomma }} /-
+									{% elif product.rent_per_day %}
+										{{ product.rent_per_day|intcomma }} /- per day
+									{% else %}
+										Price not available
+									{% endif %}
+								</h4>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+
+					<div>
+						<!-- Loop through rent products for the second row -->
+						{% for product in rent_products %}
+						<div class="product-widget">
+							<div class="product-img">
+								<!-- Use dynamic product image -->
+								<img src="{% if product.images.all %}{{ product.images.all.0.image.url }}{% else %}{% static 'img/default-product.png' %}{% endif %}" alt="{{ product.title }}">
+							</div>
+							<div class="product-body">
+								<p class="product-category">{{ product.product_model.brand.category.name }}</p>
+								<h3 class="product-name"><a href="{% url 'product_detail' product.id %}">{{ product.title }}</a></h3>
+								<h4 class="product-price">
+									{% if product.price and product.rent_per_day %}
+										{{ product.price|intcomma }} /- / {{ product.rent_per_day|intcomma }} /- per day
+									{% elif product.price %}
+										{{ product.price|intcomma }} /-
+									{% elif product.rent_per_day %}
+										{{ product.rent_per_day|intcomma }} /- per day
+									{% else %}
+										Price not available
+									{% endif %}
+								</h4>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+
+					</div>
+
+					<div class="clearfix visible-sm visible-xs"></div>
+					<div class="col-md-4 col-xs-6">
+						<div class="section-title">
+							<h4 class="title">Top Selling</h4>
+							<div class="section-nav">
+								<div id="slick-nav-5" class="products-slick-nav"></div>
+							</div>
+						</div>
+
+						<div class="products-widget-slick" data-nav="#slick-nav-5">
+							<div>
+								<!-- Loop through sell products -->
+								{% for product in sell_products %}
+								<div class="product-widget">
+									<div class="product-img">
+										<!-- Use dynamic product image -->
+										<img src="{% if product.images.all %}{{ product.images.all.0.image.url }}{% else %}{% static 'img/default-product.png' %}{% endif %}" alt="{{ product.title }}">
+									</div>
+									<div class="product-body">
+										<p class="product-category">{{ product.product_model.brand.category.name }}</p>
+										<h3 class="product-name"><a href="{% url 'product_detail' product.id %}">{{ product.title }}</a></h3>
+										<h4 class="product-price">
+											{% if product.price and product.rent_per_day %}
+												{{ product.price|intcomma }} /- / {{ product.rent_per_day|intcomma }} /- per day
+											{% elif product.price %}
+												{{ product.price|intcomma }} /-
+											{% elif product.rent_per_day %}
+												{{ product.rent_per_day|intcomma }} /- per day
+											{% else %}
+												Price not available
+											{% endif %}
+										</h4>
+									</div>
+								</div>
+								{% endfor %}
+							</div>
+
+							<!-- Repeat the second row -->
+							<div>
+								<!-- Loop through sell products -->
+								{% for product in sell_products %}
+								<div class="product-widget">
+									<div class="product-img">
+										<!-- Use dynamic product image -->
+										<img src="{% if product.images.all %}{{ product.images.all.0.image.url }}{% else %}{% static 'img/default-product.png' %}{% endif %}" alt="{{ product.title }}">
+									</div>
+									<div class="product-body">
+										<p class="product-category">{{ product.product_model.brand.category.name }}</p>
+										<h3 class="product-name"><a href="{% url 'product_detail' product.id %}">{{ product.title }}</a></h3>
+										<h4 class="product-price">
+											{% if product.price and product.rent_per_day %}
+												{{ product.price|intcomma }} /- / {{ product.rent_per_day|intcomma }} /- per day
+											{% elif product.price %}
+												{{ product.price|intcomma }} /-
+											{% elif product.rent_per_day %}
+												{{ product.rent_per_day|intcomma }} /- per day
+											{% else %}
+												Price not available
+											{% endif %}
+										</h4>
+									</div>
+								</div>
+								{% endfor %}
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+		<!-- NEWSLETTER -->
+		<div id="newsletter" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<div class="newsletter">
+							<p>Enter Email For <strong>FUTURE UPDATES</strong></p>
+							<form>
+								<input class="input" type="email" placeholder="Enter Your Email">
+								<button class="newsletter-btn"><i class="fa fa-envelope"></i> Subscribe</button>
+							</form>
+							<ul class="newsletter-follow">
+								<li>
+									<a href="#"><i class="fa fa-facebook"></i></a>
+								</li>
+								<li>
+									<a href="#"><i class="fa fa-twitter"></i></a>
+								</li>
+								<li>
+									<a href="#"><i class="fa fa-instagram"></i></a>
+								</li>
+								<li>
+									<a href="#"><i class="fa fa-pinterest"></i></a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /NEWSLETTER -->
+
+{% endblock %}

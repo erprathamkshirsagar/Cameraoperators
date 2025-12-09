@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>CameraOperator</title>
+		<!-- Google font -->
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Font Awesome 5 (CDN) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+		<!-- Bootstrap -->
+		{% load static %}
+		<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+   <style>
+    /* ------------------------------
+   CHAT LAYOUT (NON-CONFLICT)
+------------------------------ */
+
+
+.chat-wrapper {
+    display: flex;
+    height: 74vh;       /* Reduced height */
+    margin-top: 15px;
+    gap: 8px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ------------------------------
+   LEFT CHAT LIST PANEL
+------------------------------ */
+#chatListBox {
+    width: 30%;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+}
+
+#chatListHeaderBox {
+    height: 70px;
+    background: #075E54;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    color: white;
+}
+
+#chatSearchBox {
+    padding: 10px;
+    background: #f5f5f5;
+}
+
+#chatSearchInput {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #bbb;
+}
+
+/* CHAT ITEMS */
+#chatListItems {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    height: calc(100% - 140px);
+}
+
+.chat-item {
+    display: flex;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    align-items: center;
+    transition: .2s;
+}
+
+.chat-item:hover {
+    background: #f2f2f2;
+}
+
+.chat-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.chat-info {
+    flex: 1;
+}
+
+.chat-info h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.chat-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #444;
+}
+
+.chat-info .chat-lastTime {
+    float: right;
+    font-size: 12px;
+    color: gray;
+}
+
+.chat-badge {
+    padding: 4px 8px;
+    background: #25D366;
+    color: white;
+    font-size: 12px;
+    border-radius: 20px;
+    display: none;
+}
+
+/* ------------------------------
+   RIGHT CHAT PANEL
+------------------------------ */
+
+#chatBoxPanel {
+    width: 70%;
+    height: 85%;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+#chatBoxPanel.active {
+    display: flex;
+}
+
+/* HEADER */
+#chatHeaderBox {
+    display: none;
+    align-items: center;
+    background: #075E54;
+    padding: 12px;
+    color: white;
+    border-radius: 10px 10px 0 0;
+}
+
+#chatHeaderBox img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+#chatBackBtn {
+    border: none;
+    background: transparent;
+    font-size: 25px;
+    color: white;
+    margin-right: 15px;
+    display: none;
+}
+
+/* WELCOME SCREEN */
+#chatWelcomeBox {
+    text-align: center;
+    margin: auto;
+    color: #666;
+}
+
+#chatWelcomeBox img {
+    width: 120px;
+    opacity: .4;
+}
+
+/* CHAT CONTENT */
+#chatContentBox {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+
+#chatMessagesBox {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #ECE5DD;
+}
+/* MESSAGE BUBBLES */
+.msg-box {
+    max-width: 70%;
+    padding: 10px 14px;
+    margin: 8px 0;
+    border-radius: 10px;
+    font-size: 14px;
+    display: inline-block;
+    clear: both;
+}
+
+/* Sent by me → Right */
+.msg-you {
+    background: #DCF8C6;
+    float: right;
+    text-align: right;
+}
+
+/* Received → Left */
+.msg-them {
+    background: #ffffff;
+    float: left;
+    text-align: left;
+}
+
+
+/* INPUT AREA */
+#chatInputArea {
+    padding: 10px;
+    background: #f0f0f0;
+    display: flex;
+    gap: 10px;
+}
+
+#chatMsgInput {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #bbb;
+}
+
+#chatSendBtn {
+    background: #075E54;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+}
+
+/* ------------------------------
+   MOBILE RESPONSIVE
+------------------------------ */
+
+@media (max-width: 768px) {
+
+    .chat-wrapper {
+        flex-direction: column;
+        height: auto;
+    }
+
+    #chatListBox {
+        width: 100%;
+        height: 80vh;
+    }
+
+    #chatBoxPanel {
+        width: 100%;
+        height: 80vh;
+        display: none;
+    }
+
+    #chatBoxPanel.active {
+        display: flex;
+    }
+
+    #chatBackBtn {
+        display: inline-block;
+    }
+}
+
+   </style>
+    </head>
+	<body>
+		<!-- HEADER -->
+<header>
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <div class="container">
+            <div class="row align-items-center">
+                
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="{% url 'dashboard' %}" class="logo">
+                            <img src="{% static 'img/logo.png' %}" alt="Logo">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                <!-- SEARCH BAR -->
+                <div class="col-md-6">
+                    <div class="header-search">
+                        <form method="get" action="{% url 'dashboard' %}">
+                            <select class="input-select" name="category">
+                                <option value="0">All Categories</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <input class="input" type="text" name="q" placeholder="Search here">
+                            <button class="search-btn btn btn-primary" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- /SEARCH BAR -->
+
+                <!-- ACCOUNT -->
+<div class="col-md-3 text-end">
+    <div class="header-ctn d-flex justify-content-end align-items-center">
+
+        {% if request.session.user_id %}
+            <!-- Messages (only if logged in) -->
+            <div class="me-3 position-relative">
+                 <a href="{% url 'chat' %}">
+    <i class="fa fa-envelope-o"></i>
+    <span>Messages</span>
+    {% if unread_chat_count > 0 %}
+    <div class="qty position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ unread_chat_count }}
+    </div>
+    {% endif %}
+</a>
+
+            </div>
+<!-- Profile Dropdown -->
+<div class="dropdown">
+    <a class="dropdown-toggle text-decoration-none d-flex align-items-center" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-user-o me-2"></i>
+        <span>My Profile</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="profileDropdown" style="min-width: 200px;">
+
+        <!-- Welcome Section -->
+        <li class="px-3 py-2 text-start">
+    <div class="small text-muted">Welcome,</div>
+<div class="fw-bold">
+    {{ user_name }}
+    {% if profile_status == 'verified' %}
+        <img src="{% static 'img/verified.png' %}" alt="Verified" class="ms-2" style="width:18px; height:18px;">
+    {% endif %}
+</div>
+
+</li>
+
+        <li><hr class="dropdown-divider my-1"></li>
+
+        <!-- Profile -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'profile' %}">
+                <i class="fa fa-id-badge me-2"></i> Profile
+            </a>
+        </li>
+		 <!-- Document Verification -->
+        <!-- Document Verification -->
+{% if profile_status != 'verified' %}
+<li>
+    <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'documentverification' %}">
+        <i class="fa fa-users me-2"></i> Document Verification
+    </a>
+</li>
+{% endif %}
+
+
+        <!-- Freelancer -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'freelancer' %}">
+                <i class="fa fa-users me-2"></i> Freelancer
+            </a>
+        </li>
+
+        <!-- Booking -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'dashboard' %}">
+<i class="fas fa-calendar me-2"></i> Booking
+            </a>
+        </li>
+
+        <!-- Product -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'dashboard' %}">
+        <i class="fas fa-box-open me-2"></i> Product
+            </a>
+        </li>
+
+        <li><hr class="dropdown-divider my-1"></li>
+
+        <!-- Logout -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1 text-danger" href="{% url 'logout' %}">
+        <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+        {% else %}
+            <!-- Login Link -->
+            <div>
+                <a class="text-decoration-none" href="{% url 'login' %}">
+                    <i class="fa fa-user-o"></i> Login
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Menu Toggle for mobile -->
+        <div class="menu-toggle ms-3 d-lg-none">
+            <a href="#" class="text-decoration-none">
+                <i class="fa fa-bars"></i>
+                <span>Menu</span>
+            </a>
+        </div>
+
+    </div>
+</div>
+<!-- /ACCOUNT -->
+
+
+            </div>
+        </div>
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+
+<!-- NAVIGATION -->
+<nav id="navigation">
+    <div class="container">
+        <div id="responsive-nav">
+            <ul class="main-nav nav navbar-nav">
+                <li class="active"><a href="{% url 'dashboard' %}">Home</a></li>
+                <!-- Loop through categories -->
+                {% for cat in categories %}
+                    <li><a href="#">{{ cat.name }}</a></li>
+                {% endfor %}
+                
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- /NAVIGATION -->
+
+<div class="chat-wrapper">
+
+  <!-- LEFT SIDE LIST -->
+  <div id="chatListBox">
+    <ul id="chatListItems">
+      {% for u in chat_users %}
+      <li class="chat-item" id="chat_user_{{ u.id }}"
+          onclick="openChat({{ u.id }}, '{{ u.name|escapejs }}', '{{ u.profile_image }}', '{{ u.profile_status|default:''|lower }}')">
+
+        <img src="{{ u.profile_image }}" width="45" class="rounded-circle" alt="User Image">
+
+        <div class="chat-info">
+          <strong>
+            {{ u.name }}
+            {% if u.profile_status|default:''|lower == 'verified' %}
+            <img src="{% static 'img/verified.png' %}" alt="Verified" style="width:16px; height:16px; margin-left:6px; vertical-align:middle;">
+            {% endif %}
+          </strong>
+          <br>
+          <small>{{ u.last_message }}</small>
+        </div>
+
+        <span class="chat-badge" id="badge_{{ u.id }}"
+          style="display: {% if u.unread > 0 %}inline-block{% else %}none{% endif %};">
+          {{ u.unread }}
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- RIGHT SIDE CHAT -->
+  <div id="chatBoxPanel">
+
+    <div id="chatHeaderBox" style="display:none; align-items:center;">
+  <button id="chatBackBtn">←</button>
+  <img id="chatUserImage" src="" alt="User" style="width:40px; height:40px; border-radius:50%; margin-right:8px;">
+  <a id="chatWithUser" href="#" style="font-weight:bold; text-decoration:none; color:#ffffff;"></a>
+  <img id="verifiedIcon" src="{% static 'img/verified.png' %}" alt="Verified" style="width:16px; height:16px; margin-left:6px; vertical-align:middle; display:none;">
+</div>
+
+
+    <div id="chatWelcomeBox">
+      <h2>Welcome to Chat</h2>
+      <p>Select a chat or open a freelancer to start messaging.</p>
+    </div>
+    
+
+    <div id="chatContentBox" style="display:none; flex-direction: column; height: 100%;">
+      <div id="chatMessagesBox" style="flex-grow:1; overflow-y:auto; padding: 10px; border: 1px solid #ddd; margin-bottom: 10px;"></div>
+
+      
+
+      <div id="chatInputArea" style="display:flex; gap: 10px; align-items:center;">
+        <input type="text" id="chatMsgInput" placeholder="Type a message..." style="flex-grow:1; padding: 8px;">
+        <button id="chatSendBtn">Send</button>
+        <a id="viewProfileBtn" href="#" style="display:none; font-weight:bold; text-decoration:none; padding: 8px 12px; border: 1px solid #007bff; color: #007bff; border-radius: 4px;">
+  View Profile
+</a>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<br>
+
+
+		<!-- FOOTER -->
+		<footer id="footer">
+			<!-- top footer -->
+			<div class="section">
+				<!-- container -->
+				<div class="container">
+					<!-- row -->
+					<div class="row">
+						<div class="col-md-3 col-xs-6">
+							<div class="footer">
+								<h3 class="footer-title">About Us</h3>
+								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.</p>
+								<ul class="footer-links">
+									<li><a href="#"><i class="fa fa-map-marker"></i>1734 Stonecoal Road</a></li>
+									<li><a href="#"><i class="fa fa-phone"></i>+021-95-51-84</a></li>
+									<li><a href="#"><i class="fa fa-envelope-o"></i>email@email.com</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-xs-6">
+							<div class="footer">
+								<h3 class="footer-title">Categories</h3>
+								<ul class="footer-links">
+									<li><a href="#">Hot deals</a></li>
+									<li><a href="#">Laptops</a></li>
+									<li><a href="#">Smartphones</a></li>
+									<li><a href="#">Cameras</a></li>
+									<li><a href="#">Accessories</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="clearfix visible-xs"></div>
+
+						<div class="col-md-3 col-xs-6">
+							<div class="footer">
+								<h3 class="footer-title">Information</h3>
+								<ul class="footer-links">
+									<li><a href="#">About Us</a></li>
+									<li><a href="#">Contact Us</a></li>
+									<li><a href="#">Privacy Policy</a></li>
+									<li><a href="#">Orders and Returns</a></li>
+									<li><a href="#">Terms & Conditions</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-xs-6">
+							<div class="footer">
+								<h3 class="footer-title">Service</h3>
+								<ul class="footer-links">
+									<li><a href="#">My Account</a></li>
+									<li><a href="#">View Cart</a></li>
+									<li><a href="#">Wishlist</a></li>
+									<li><a href="#">Track My Order</a></li>
+									<li><a href="#">Help</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<!-- /row -->
+				</div>
+				<!-- /container -->
+			</div>
+			<!-- /top footer -->
+
+			<!-- bottom footer -->
+			<div id="bottom-footer" class="section">
+				<div class="container">
+					<!-- row -->
+					<div class="row">
+						<div class="col-md-12 text-center">
+							<ul class="footer-payments">
+								<li><a href="#"><i class="fa fa-cc-visa"></i></a></li>
+								<li><a href="#"><i class="fa fa-credit-card"></i></a></li>
+								<li><a href="#"><i class="fa fa-cc-paypal"></i></a></li>
+								<li><a href="#"><i class="fa fa-cc-mastercard"></i></a></li>
+								<li><a href="#"><i class="fa fa-cc-discover"></i></a></li>
+								<li><a href="#"><i class="fa fa-cc-amex"></i></a></li>
+							</ul>
+							<span class="copyright">
+								<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+								Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved</a>
+							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+							</span>
+						</div>
+					</div>
+						<!-- /row -->
+				</div>
+				<!-- /container -->
+			</div>
+			<!-- /bottom footer -->
+		</footer>
+		<!-- /FOOTER -->
+<script>
+  const sessionUserId = {{ user_id }};
+let currentChatUserId = null;
+
+// DOM elements
+const chatListItems = document.getElementById("chatListItems");
+const chatWelcomeBox = document.getElementById("chatWelcomeBox");
+const chatHeaderBox = document.getElementById("chatHeaderBox");
+const chatContentBox = document.getElementById("chatContentBox");
+const chatMessagesBox = document.getElementById("chatMessagesBox");
+const chatWithUser = document.getElementById("chatWithUser");
+const chatUserImage = document.getElementById("chatUserImage");
+const verifiedIcon = document.getElementById("verifiedIcon");
+const viewProfileBtn = document.getElementById("viewProfileBtn");
+
+// Open chat with a user and load messages
+function openChat(id, name, photo, profileStatus = '') {
+  currentChatUserId = id;
+
+  chatWelcomeBox.style.display = "none";
+  chatHeaderBox.style.display = "flex";
+  chatContentBox.style.display = "flex";
+
+  chatUserImage.src = photo || "/static/default_user.png";
+
+  chatWithUser.textContent = name || "Chat";
+  chatWithUser.href = `/freelancer/${id}/`;      // open in same tab
+  // Removed: chatWithUser.target = "_blank";
+
+  // Show verified icon if profile_status is 'verified'
+  if (profileStatus.toLowerCase() === "verified") {
+    verifiedIcon.style.display = "inline-block";
+  } else {
+    verifiedIcon.style.display = "none";
+  }
+
+  // Show the View Profile button with link
+  viewProfileBtn.style.display = "inline-block";
+  viewProfileBtn.href = `/freelancer/${id}/`;
+  // Removed: viewProfileBtn.target = "_blank";
+
+  // Hide unread badge on this user in the list
+  const badge = document.getElementById("badge_" + id);
+  if (badge) {
+    badge.style.display = "none";
+    badge.innerText = "";
+  }
+
+  chatMessagesBox.innerHTML = "";
+
+  fetch(`/get_messages/${id}/`)
+    .then(res => {
+      if (!res.ok) throw new Error(`Failed to fetch messages: ${res.status}`);
+      return res.json();
+    })
+    .then(messages => {
+      messages.forEach(msg => {
+        const bubble = document.createElement("div");
+        bubble.classList.add("msg-box");
+        bubble.classList.add(msg.sender_id === sessionUserId ? "msg-you" : "msg-them");
+        bubble.innerText = msg.message;
+        chatMessagesBox.appendChild(bubble);
+      });
+
+      chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
+
+      // Reload user list to update unread counts
+      loadChatUsers();
+    })
+    .catch(err => console.error("Error fetching messages:", err));
+}
+
+// Render a chat user in the list
+function renderChatItem(user) {
+  if (document.getElementById("chat_user_" + user.id)) return;
+
+  const li = document.createElement("li");
+  li.className = "chat-item";
+  li.id = "chat_user_" + user.id;
+
+  // Verified icon in list
+  const verifiedImg = user.profile_status && user.profile_status.toLowerCase() === 'verified'
+    ? `<img src="/static/img/verified.png" alt="Verified" style="width:16px; height:16px; margin-left:6px; vertical-align:middle;">`
+    : '';
+
+  li.innerHTML = `
+    <img src="${user.profile_image || '/static/default_user.png'}" width="45" class="rounded-circle" alt="User Image">
+    <div class="chat-info">
+      <strong>${user.name || 'Unknown User'} ${verifiedImg}</strong><br>
+      <small>${user.last_message || "Tap to chat"}</small>
+    </div>
+    <span class="chat-badge" id="badge_${user.id}" 
+      style="display: ${user.unread && user.unread > 0 ? 'inline-block' : 'none'};">
+      ${user.unread || ''}
+    </span>
+  `;
+
+  li.onclick = () => openChat(user.id, user.name, user.profile_image, user.profile_status);
+  chatListItems.appendChild(li);
+}
+
+// Load all chat users
+function loadChatUsers() {
+  fetch("/get_chat_users/")
+    .then(res => {
+      if (!res.ok) throw new Error(`Failed to fetch chat users: ${res.status}`);
+      return res.json();
+    })
+    .then(users => {
+      chatListItems.innerHTML = "";
+      users.forEach(user => renderChatItem(user));
+    })
+    .catch(err => console.error("Error loading chat users:", err));
+}
+
+// Send a new message
+document.getElementById("chatSendBtn").onclick = () => {
+  const input = document.getElementById("chatMsgInput");
+  const text = input.value.trim();
+  if (!text || !currentChatUserId) return;
+
+  // Append message locally
+  const bubble = document.createElement("div");
+  bubble.classList.add("msg-box", "msg-you");
+  bubble.innerText = text;
+  chatMessagesBox.appendChild(bubble);
+
+  chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
+  input.value = "";
+
+  // Send message to server
+  fetch("/send_message/", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `receiver_id=${currentChatUserId}&message=${encodeURIComponent(text)}`
+  })
+  .then(res => {
+    if (!res.ok) throw new Error(`Failed to send message: ${res.status}`);
+    loadChatUsers();
+  })
+  .catch(err => console.error("Error sending message:", err));
+};
+
+// Initialize chat UI on page load
+window.onload = () => {
+  loadChatUsers();
+
+  {% if open_chat_user_id %}
+    openChat({{ open_chat_user_id }}, "{{ chat_user_name }}", "{{ chat_user_photo }}", "{{ profile_status|default:'' }}");
+  {% endif %}
+};
+
+
+</script>
+
+
+		<script src="{% static 'js/jquery.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/slick.min.js' %}"></script>
+		<script src="{% static 'js/nouislider.min.js' %}"></script>
+		<script src="{% static 'js/jquery.zoom.min.js' %}"></script>
+		<script src="{% static 'js/main.js' %}"></script>
+	</body>
+</html>

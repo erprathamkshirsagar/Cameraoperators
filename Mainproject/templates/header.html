@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>CameraOperator</title>
+		<!-- Google font -->
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Font Awesome 5 (CDN) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+		<!-- Bootstrap -->
+		{% load static %}
+		<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+<style>
+    /* Suggestions Container */
+    .suggestions-box {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-top: none;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 0 0 5px 5px;
+        max-height: 350px; /* Limit height */
+        overflow-y: auto;  /* Allow scrolling */
+    }
+
+    /* Individual Item */
+    .suggestion-item {
+        display: flex;       /* Aligns Image and Text side-by-side */
+        align-items: center; /* Vertically centers them */
+        padding: 10px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        transition: background 0.2s;
+    }
+
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Image Style */
+    .suggestion-img {
+        width: 45px;
+        height: 45px;
+        object-fit: cover; /* Prevents stretching */
+        border-radius: 50%; /* Makes image round */
+        margin-right: 15px;
+        border: 1px solid #e1e1e1;
+    }
+
+    /* Text Container */
+    .suggestion-details {
+        flex-grow: 1; /* Pushes the badge to the right */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .suggestion-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .suggestion-sub {
+        font-size: 12px;
+        color: #888;
+    }
+    
+    /* Category Badge */
+    .suggestion-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+    .badge-product { background-color: #D10024; }   /* Red */
+    .badge-freelancer { background-color: #2196F3; } /* Blue */
+</style>
+    </head>
+	<body>
+		<!-- HEADER -->
+<header>
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <div class="container">
+            <div class="row align-items-center">
+                
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="{% url 'dashboard' %}" class="logo">
+                            <img src="{% static 'img/logo.png' %}" alt="Logo">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+<!-- SEARCH BAR -->
+<div class="col-md-6">
+    <div class="header-search" style="position: relative;">
+        <form method="get" id="searchForm" action="{% url 'product_display' %}"> 
+            <div class="d-flex">
+                <!-- Search Type Dropdown -->
+                <select class="input-select" name="search_type" id="searchType" style="width: 150px;">
+                    <!-- ADD THIS OPTION -->
+                    <option value="all" {% if search_type == "all" or not search_type %}selected{% endif %}>All Categories</option>
+                    <option value="product" {% if search_type == "product" %}selected{% endif %}>Products</option>
+                    <option value="freelancer" {% if search_type == "freelancer" %}selected{% endif %}>Freelancers</option>
+                </select>
+
+                <!-- Search Query Input -->
+                <input class="input" type="text" name="q" id="searchQuery" 
+                       placeholder="Search here..." value="{{ search_query }}" autocomplete="off">
+
+                <!-- Search Button -->
+                <button class="search-btn btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+
+        <!-- Suggestions Dropdown Container -->
+        <div id="suggestionsBox" class="suggestions-box"></div>
+    </div>
+</div>
+
+
+                <!-- ACCOUNT -->
+<div class="col-md-3 text-end">
+    <div class="header-ctn d-flex justify-content-end align-items-center">
+
+        {% if request.session.user_id %}
+            <!-- Messages (only if logged in) -->
+            <div class="me-3 position-relative">
+                <a href="{% url 'chat' %}">
+    <i class="fa fa-envelope-o"></i>
+    <span>Messages</span>
+    {% if unread_chat_count > 0 %}
+    <div class="qty position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ unread_chat_count }}
+    </div>
+    {% endif %}
+</a>
+
+            </div>
+			 <!-- PROFILE DROPDOWN -->
+                        <div class="dropdown">
+                            <a class="dropdown-toggle text-decoration-none d-flex align-items-center"
+                               href="#"
+                               id="profileDropdown"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="fa fa-user-o me-2"></i>
+                                <span>My Profile</span>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width: 220px;">
+
+                                <!-- USER INFO -->
+                                <li class="px-3 py-2">
+                                    <div class="small text-muted">Welcome,</div>
+                                    <div class="fw-bold">
+                                        {{ user_name }}
+                                        {% if profile_status == 'verified' %}
+                                            <img src="{% static 'img/verified.png' %}"
+                                                 alt="Verified"
+                                                 class="ms-1"
+                                                 style="width:16px;">
+                                        {% endif %}
+                                    </div>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <!-- MENU ITEMS -->
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'profile' %}">
+                                        <i class="fa fa-id-badge me-2"></i> Profile
+                                    </a>
+                                </li>
+
+                                {% if profile_status != 'verified' %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'documentverification' %}">
+                                        <i class="fa fa-file-text me-2"></i> Document Verification
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                {% if profile_status == 'verified' %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'freelancer' %}">
+                                        <i class="fa fa-users me-2"></i> Freelancer
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'gallery' %}">
+                                        <i class="fa fa-image me-2"></i> Add Post
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'client_bookings' %}">
+                                        <i class="fa fa-calendar me-2"></i> Bookings
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'orders' %}">
+                                        <i class="fa fa-shopping-cart me-2"></i> Orders
+                                    </a>
+                                </li>
+
+                                {% if profile_status == 'verified' %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'productmanagement' %}">
+        <i class="fas fa-box-open me-2"></i> Product
+                                    </a>
+                                </li>
+                                {% endif %}
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <!-- LOGOUT -->
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                        <i class="fa fa-sign-out me-2"></i> Logout
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+
+
+
+        {% else %}
+            <!-- Login Link -->
+            <div>
+                <a class="text-decoration-none" href="{% url 'login' %}">
+                    <i class="fa fa-user-o"></i> Login
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Menu Toggle for mobile -->
+        <div class="menu-toggle ms-3 d-lg-none">
+            <a href="#" class="text-decoration-none">
+                <i class="fa fa-bars"></i>
+                <span>Menu</span>
+            </a>
+        </div>
+
+    </div>
+</div>
+<!-- /ACCOUNT -->
+
+
+            </div>
+        </div>
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+<!-- NAVIGATION -->
+<nav id="navigation">
+    <div class="container">
+        <div id="responsive-nav">
+            <ul class="main-nav nav navbar-nav">
+
+                <!-- Home -->
+                <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <a href="{% url 'dashboard' %}">Home</a>
+                </li>
+
+                <!-- Categories -->
+                {% for cat in categories %}
+                    {% if cat.name == "Freelancer" %}
+                         <li class="{% if request.resolver_match.url_name == 'freelancerdisplay' or 'freelancer_profile' in request.resolver_match.url_name %}active{% endif %}">
+                            <a href="{% url 'freelancerdisplay' %}">Freelancer</a>
+                        </li>
+                    {% elif cat.name == "Products" %}
+                        <!-- Main Products link (all products, no filter) -->
+                        <li class="{% if request.resolver_match.url_name == 'product_display' and not selected_type %}active{% endif %}">
+                            <a href="{% url 'product_display' %}">Products</a>
+                        </li>
+
+                        <!-- Sell Products -->
+                        <li class="{% if request.resolver_match.url_name == 'product_display' and selected_type == 'sell' %}active{% elif request.resolver_match.url_name == 'product_detail' and product.type == 'sell' %}active{% endif %}">
+                            <a href="{% url 'product_display' %}?type=sell">Sell</a>
+                        </li>
+
+                        <!-- Rent Products -->
+                        <li class="{% if request.resolver_match.url_name == 'product_display' and selected_type == 'rent' %}active{% elif request.resolver_match.url_name == 'product_detail' and product.type == 'rent' %}active{% endif %}">
+                            <a href="{% url 'product_display' %}?type=rent">Rent</a>
+                        </li>
+
+                        <!-- Resell Products -->
+                        <li class="{% if request.resolver_match.url_name == 'product_display' and selected_type == 'resell' %}active{% elif request.resolver_match.url_name == 'product_detail' and product.type == 'resell' %}active{% endif %}">
+                            <a href="{% url 'product_display' %}?type=resell">Resell</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- /NAVIGATION -->
+
+
+
+<!-- JAVASCRIPT -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select Elements
+    const searchType = document.getElementById('searchType');
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchQuery');
+    const suggestionsBox = document.getElementById('suggestionsBox');
+
+    // ==========================================
+    // 1. Handle Form Action Switching (Dynamic URL)
+    // ==========================================
+    function updateFormAction() {
+        const type = searchType.value;
+        if (type === 'freelancer') {
+            searchForm.action = "{% url 'freelancerdisplay' %}";
+        } else {
+            // Default to product display
+            searchForm.action = "{% url 'product_display' %}";
+        }
+    }
+
+    // Initialize logic on page load
+    updateFormAction();
+
+    // Update logic when dropdown changes
+    searchType.addEventListener('change', updateFormAction);
+
+
+    // ==========================================
+    // 2. Live Search Suggestions with Images
+    // ==========================================
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        const type = searchType.value;
+
+        // Hide if query is too short
+        if (query.length < 2) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
+
+        // Fetch Data from Backend
+        fetch(`/search-suggestions/?q=${encodeURIComponent(query)}&type=${type}`)
+            .then(response => response.json())
+            .then(data => {
+                suggestionsBox.innerHTML = ''; // Clear previous results
+                
+                if (data.results.length > 0) {
+                    data.results.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        
+                        const badgeClass = item.category === 'Product' ? 'badge-product' : 'badge-freelancer';
+
+                        // Build HTML: Image + Text + Badge
+                        div.innerHTML = `
+                            <img src="${item.image}" alt="${item.name}" class="suggestion-img">
+                            
+                            <div class="suggestion-details">
+                                <span class="suggestion-name">${item.name}</span>
+                                <span class="suggestion-sub">${item.sub_text}</span>
+                            </div>
+
+                            <span class="suggestion-badge ${badgeClass}">${item.category}</span>
+                        `;
+
+                        // Handle Click: Navigate to URL
+                        div.addEventListener('click', function() {
+                            window.location.href = item.url;
+                        });
+
+                        suggestionsBox.appendChild(div);
+                    });
+                    suggestionsBox.style.display = 'block';
+                } else {
+                    suggestionsBox.style.display = 'none';
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching suggestions:', err);
+                suggestionsBox.style.display = 'none';
+            });
+    });
+
+    // ==========================================
+    // 3. Hide Suggestions on Click Outside
+    // ==========================================
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+});
+</script>
+
+
+		<script src="{% static 'js/jquery.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/slick.min.js' %}"></script>
+		<script src="{% static 'js/nouislider.min.js' %}"></script>
+		<script src="{% static 'js/jquery.zoom.min.js' %}"></script>
+		<script src="{% static 'js/main.js' %}"></script>
+	</body>
+</html>

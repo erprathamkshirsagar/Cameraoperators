@@ -1,0 +1,401 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Dashboard - User Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #003f8c;
+      --secondary-color: #ffc107;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      height: 60px;
+      z-index: 1050;
+    }
+
+    .navbar-brand img { height: 40px; }
+    .navbar .username { font-weight: 500; }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      width: 230px;
+      height: calc(100% - 60px);
+      background-color: var(--primary-color);
+      padding-top: 20px;
+      transition: transform 0.3s ease;
+      z-index: 1040;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #fff;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-size: 15px;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #0052b8;
+      border-left: 4px solid var(--secondary-color);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 230px;
+      padding: 80px 30px 30px;
+      transition: margin-left 0.3s ease;
+    }
+
+    table th, table td { vertical-align: middle !important; }
+
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .image-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      padding-top: 60px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .image-modal .close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #fff;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .image-modal img.modal-content {
+      display: block;
+      margin: auto;
+      max-width: 90%;
+      max-height: 80%;
+    }
+
+    @media (max-width: 991px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.active { transform: translateX(0); }
+      .main-content { margin-left: 0; padding-top: 80px; }
+    }
+
+    @media (max-width: 768px) { .main-content { padding: 80px 15px 30px; } .navbar .username { display: none; } }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top px-3">
+    <button class="btn btn-outline-primary d-lg-none me-2" id="menu-toggle"><i class="bi bi-list"></i></button>
+    <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% static 'logo1.png' %}" alt="Logo"></a>
+    <span class="ms-auto fw-semibold username">👤 {{ request.user.username }}</span>
+  </nav>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <!-- Dashboard -->
+  <a href="{% url 'admindashboard' %}" >
+    <i class="bi bi-house"></i> Dashboard
+  </a>
+  
+  <!-- Manage Categories -->
+  <a href="{% url 'manage_categories' %}">
+    <i class="bi bi-file-earmark-text"></i> Manage Categories
+  </a>
+  
+  <!-- Manage Locations -->
+  <a href="{% url 'manage_locations' %}">
+    <i class="bi bi-map"></i> Manage Locations
+  </a>
+
+  <!-- Verification Document List -->
+  <a href="{% url 'verifydocumentslist' %}">
+    <i class="bi bi-file-earmark-check"></i> Verification Docs List
+  </a>
+
+  <!-- Users -->
+  <a href="{% url 'adminuserdetails' %}"class="active">
+    <i class="bi bi-person"></i> Users
+  </a>
+
+  <!-- Product Management -->
+  <a href="{% url 'productmanager' %}">
+    <i class="bi bi-box"></i> Product Management
+  </a>
+
+  <!-- Logout -->
+  <a href="{% url 'adminlogout' %}">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>   
+</div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    {% block content %}
+    <h2 class="mb-4 text-center">User Details</h2>
+
+    <!-- User Details Card -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <table class="table table-bordered">
+          <tbody>
+            <tr><th>ID</th><td>{{ user.id }}</td></tr>
+            <tr><th>Full Name</th><td>{{ user.first_name }} {% if user.middle_name %}{{ user.middle_name }}{% endif %} {{ user.surname }}</td></tr>
+            <tr><th>Date of Birth</th><td>{{ user.dob|date:"F j, Y" }}</td></tr>
+            <tr><th>Mobile</th><td>{{ user.mobile }}</td></tr>
+            <tr><th>Email</th><td>{{ user.email }}</td></tr>
+            <tr><th>Instagram ID</th><td>{{ user.insta_id|default:"N/A" }}</td></tr>
+            <tr><th>Address</th><td>{{ user.address|default:"N/A" }}</td></tr>
+            <tr><th>Firm Name</th><td>{{ user.firm_name|default:"N/A" }}</td></tr>
+            <tr><th>Firm Address</th><td>{{ user.firm_address|default:"N/A" }}</td></tr>
+            <tr><th>Country</th><td>{{ user.country.name|default:"N/A" }}</td></tr>
+            <tr><th>State</th><td>{{ user.state.name|default:"N/A" }}</td></tr>
+            <tr><th>City</th><td>{{ user.city.name|default:"N/A" }}</td></tr>
+            <tr><th>Taluka</th><td>{{ user.taluka.name|default:"N/A" }}</td></tr>
+            <tr><th>Village</th><td>{{ user.village.name|default:"N/A" }}</td></tr>
+            <tr><th>Pincode</th><td>{{ user.pincode|default:"N/A" }}</td></tr>
+            <tr>
+  <th>Profile Status</th>
+  <td>
+    <span id="profile-status" class="badge 
+      {% if user.profile_status == 'verified' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+      {{ user.profile_status|capfirst }}
+    </span>
+
+    {% if user.profile_status != "verified" %}
+      <button id="verify-profile-btn" class="btn btn-sm btn-success ms-2"
+              data-url="{% url 'verify_profile_status' user.id %}">
+        Mark Profile Verified
+      </button>
+    {% endif %}
+  </td>
+</tr>
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <a href="{% url 'adminuserdetails' %}" class="btn btn-secondary mt-3">Back to Users List</a>
+      </div>
+    </div>
+
+    <!-- Verification Documents Section -->
+    <div class="mb-4">
+      <button class="btn btn-primary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#documentSection">
+        View Verification Documents
+      </button>
+      <div class="collapse" id="documentSection">
+        <div class="card">
+          <div class="card-body">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Document</th>
+                  <th>Front Image</th>
+                  <th>Back Image</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for verification in verifications %}
+                <tr data-id="{{ verification.id }}">
+                  <td>{{ verification.document.name }}</td>
+                  <td><img src="{{ verification.front_image.url }}" class="img-thumbnail clickable-img" width="80" alt="Front"></td>
+                  <td>
+                    {% if verification.back_image %}
+                      <img src="{{ verification.back_image.url }}" class="img-thumbnail clickable-img" width="80" alt="Back">
+                    {% else %}
+                      <span class="text-muted">Not uploaded</span>
+                    {% endif %}
+                  </td>
+                  <td class="status-cell">
+                    {% if verification.status == 'verified' %}
+                      <span class="badge bg-success">Verified</span>
+                    {% elif verification.status == 'rejected' %}
+                      <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">Unverified</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <button class="btn btn-success btn-sm mb-1 action-btn" data-action="verified">Verify</button>
+                    <button class="btn btn-danger btn-sm mb-1 action-btn" data-action="rejected">Reject</button>
+                    <button class="btn btn-secondary btn-sm mb-1 delete-btn">Delete</button>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">No verification documents found.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+      <span class="close">&times;</span>
+      <img class="modal-content" id="modalImage">
+    </div>
+    {% endblock %}
+  </div>
+
+  <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(document).ready(function() {
+
+    // ---------- Sidebar toggle ----------
+    $("#menu-toggle").click(() => $("#sidebar").toggleClass("active"));
+
+    // ---------- Clickable images modal ----------
+    $('.clickable-img').click(function () {
+        $('#modalImage').attr('src', $(this).attr('src'));
+        $('#imageModal').fadeIn();
+    });
+
+    $('.image-modal, .image-modal .close').click(function(e){
+        if(e.target !== this) return;
+        $('#imageModal').fadeOut();
+    });
+
+    // ---------- Update row status function ----------
+    function updateRowStatus(row, status) {
+        const cell = row.find('.status-cell span');
+        if(status === 'verified') cell.removeClass().addClass('badge bg-success').text('Verified');
+        else if(status === 'rejected') cell.removeClass().addClass('badge bg-danger').text('Rejected');
+        else cell.removeClass().addClass('badge bg-warning text-dark').text('Unverified');
+    }
+
+    // ---------- Verify / Reject document buttons ----------
+    $('.action-btn').click(function(){
+        const row = $(this).closest('tr');
+        const verificationId = row.data('id'); // get ID from <tr>
+        const status = $(this).data('action');
+
+        if(!verificationId) {
+            alert('Document ID not found!');
+            return;
+        }
+
+        $.ajax({
+            url: `/manager/update_document_status/${verificationId}/${status}/`,
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function(resp){
+                if(resp.success) {
+                    updateRowStatus(row, resp.status);
+                } else {
+                    alert(resp.message || 'Failed to update document status.');
+                }
+            },
+            error: function(){
+                alert('Something went wrong while updating the document status!');
+            }
+        });
+    });
+
+    // ---------- Delete document button ----------
+    $('.delete-btn').click(function(){
+        if(!confirm('Are you sure you want to delete this document?')) return;
+
+        const row = $(this).closest('tr');
+        const verificationId = row.data('id'); // get ID from <tr>
+
+        if(!verificationId) {
+            alert('Document ID not found!');
+            return;
+        }
+
+        $.ajax({
+            url: `/manager/delete_document/${verificationId}/`,
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function(resp){
+                if(resp.success) {
+                    row.fadeOut(500, () => row.remove());
+                } else {
+                    alert(resp.message || 'Failed to delete document.');
+                }
+            },
+            error: function(){
+                alert('Something went wrong while deleting the document!');
+            }
+        });
+    });
+
+    // ---------- Mark profile as verified ----------
+    $('#verify-profile-btn').click(function(){
+        const btn = $(this);
+        const url = btn.data('url');
+
+        if(!url) {
+            alert('Profile verification URL not found!');
+            return;
+        }
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function(response){
+                if(response.success){
+                    $('#profile-status')
+                        .removeClass('bg-warning text-dark')
+                        .addClass('bg-success')
+                        .text('Verified');
+                    btn.remove(); // Remove the button after updating
+                } else {
+                    alert(response.message || 'Failed to verify profile.');
+                }
+            },
+            error: function(){
+                alert('Something went wrong while updating the profile status!');
+            }
+        });
+    });
+
+});
+</script>
+
+
+</body>
+</html>

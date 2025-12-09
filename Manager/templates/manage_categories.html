@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Categories</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #003f8c;
+      --secondary-color: #ffc107;
+    }
+    body { font-family: 'Poppins', sans-serif; background-color: #f4f6f9; }
+    .navbar { background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); height: 60px; }
+    .sidebar { position: fixed; top: 60px; left: 0; width: 230px; height: calc(100% - 60px); background-color: var(--primary-color); padding-top: 20px; }
+    .sidebar a { display: block; color: #fff; padding: 12px 20px; text-decoration: none; font-size: 15px; border-left: 4px solid transparent; transition: 0.3s; }
+    .sidebar a:hover, .sidebar a.active { background-color: #0052b8; border-left: 4px solid var(--secondary-color); }
+    .main-content { margin-left: 230px; padding: 80px 30px 30px; }
+    .card-custom { border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    h2, h3 { font-weight: 600; color: var(--primary-color); }
+    .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
+    .btn-primary:hover { background-color: #002f6c; border-color: #002f6c; }
+    .badge-sub { background-color: var(--secondary-color); color: #000; font-weight: 500; }
+    ul.category-list { list-style: none; padding-left: 0; }
+    ul.category-list > li { margin-bottom: 18px; padding: 12px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    ul.sub-list { list-style: none; padding-left: 25px; margin-top: 10px; }
+    ul.sub-list li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top px-3">
+    <button class="btn btn-outline-primary d-lg-none me-2" id="menu-toggle"><i class="bi bi-list"></i></button>
+    <a class="navbar-brand fw-bold text-primary" href="{% url 'admindashboard' %}">
+      <img src="{% static 'logo1.png' %}" alt="Logo" style="height:40px;">
+    </a>
+    <span class="ms-auto fw-semibold"><i class="bi bi-person-circle"></i> {{ request.user.username }}</span>
+  </nav>
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <!-- Dashboard -->
+  <a href="{% url 'admindashboard' %}" >
+    <i class="bi bi-house"></i> Dashboard
+  </a>
+  
+  <!-- Manage Categories -->
+  <a href="{% url 'manage_categories' %}"class="active">
+    <i class="bi bi-file-earmark-text"></i> Manage Categories
+  </a>
+  
+  <!-- Manage Locations -->
+  <a href="{% url 'manage_locations' %}">
+    <i class="bi bi-map"></i> Manage Locations
+  </a>
+
+  <!-- Verification Document List -->
+  <a href="{% url 'verifydocumentslist' %}">
+    <i class="bi bi-file-earmark-check"></i> Verification Docs List
+  </a>
+
+  <!-- Users -->
+  <a href="{% url 'adminuserdetails' %}">
+    <i class="bi bi-person"></i> Users
+  </a>
+
+  <!-- Product Management -->
+  <a href="{% url 'productmanager' %}">
+    <i class="bi bi-box"></i> Product Management
+  </a>
+
+  <!-- Logout -->
+  <a href="{% url 'adminlogout' %}">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>   
+</div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container">
+
+      <!-- Form Card -->
+      <div class="card card-custom p-4 mb-4">
+        <h2 class="text-center mb-4"><i class="bi bi-tags"></i> Manage Categories</h2>
+
+        <!-- Add Category Form -->
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label fw-semibold">Category Name</label>
+              <input type="text" name="name" class="form-control" placeholder="Enter category name" required>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label fw-semibold">Parent Category</label>
+              <select name="parent" class="form-select">
+                <option value="">-- Main Category --</option>
+                {% for cat in categories %}
+                  {% if not cat.parent %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2 d-grid">
+              <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Category List Card -->
+      <div class="card card-custom p-4">
+        <h3 class="mb-3"><i class="bi bi-list-ul"></i> Category List</h3>
+        <ul class="category-list">
+          {% for cat in categories %}
+            {% if not cat.parent %}
+              <li>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold text-primary"><i class="bi bi-folder"></i> {{ cat.name }}</span>
+                  <div>
+                    <a href="{% url 'edit_category' cat.id %}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'delete_category' cat.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this category?');"><i class="bi bi-trash"></i></a>
+                  </div>
+                </div>
+
+                <!-- Subcategories -->
+                {% if cat.subcategories.all %}
+                  <ul class="sub-list">
+                    {% for sub in cat.subcategories.all %}
+                      <li>
+                        <span class="badge badge-sub"><i class="bi bi-tag"></i> {{ sub.name }}</span>
+                        <a href="{% url 'edit_category' sub.id %}" class="btn btn-sm btn-warning ms-2"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'delete_category' sub.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this subcategory?');"><i class="bi bi-trash"></i></a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endif %}
+          {% empty %}
+            <li class="text-muted">No categories available.</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    document.getElementById("menu-toggle").addEventListener("click", function () {
+      document.getElementById("sidebar").classList.toggle("active");
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+
+
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Documents Verification | CameraOperator{% endblock %}
+
+{% block extra_css %}
+
+  <style>
+        /* ===== MAIN CONTENT ===== */
+        main.container { max-width: 1100px; }
+
+        /* Welcome Section */
+        .text-center h2 { font-size: 2rem; letter-spacing: 0.5px; }
+        .text-center p { font-size: 1rem; color: #6c757d; }
+
+        /* Card Styles */
+        .card { border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        .card-header { font-weight: 600; font-size: 1rem; padding: 0.85rem 1.25rem; }
+        .card-body { padding: 1.5rem; }
+
+        /* Document Select */
+        .form-select { border-radius: 8px; border: 1.5px solid #ced4da; padding: 0.55rem 0.75rem; font-size: 0.95rem; }
+        .form-select:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 5px rgba(13,110,253,0.3); }
+
+        /* Upload Box */
+        .upload-box { background: #f9f9f9; border: 2px dashed #d6d6d6; border-radius: 10px; padding: 1rem; transition: 0.3s; position: relative; }
+        .upload-box:hover { border-color: #0d6efd; background: #f1f8ff; }
+        .upload-box img { max-height: 180px; object-fit: contain; margin-top: 10px; border-radius: 8px; cursor:pointer; }
+        .upload-box label { cursor: pointer; font-size: 0.9rem; display: inline-block; margin-bottom: 0.5rem; }
+
+        /* Submit Button */
+        .btn-success { border-radius: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; }
+
+        /* Table Styling */
+        .table img { border-radius: 6px; transition: transform 0.2s ease; cursor:pointer; }
+        .table img:hover { transform: scale(1.05); }
+        .table th { font-weight: 600; font-size: 0.95rem; color: #495057; }
+        .table td { vertical-align: middle; font-size: 0.9rem; }
+
+        /* Status Badges */
+        .badge { font-size: 0.8rem; font-weight: 500; border-radius: 30px; padding: 6px 12px; }
+
+        /* Empty Table */
+        .table td[colspan="4"] { font-size: 0.95rem; color: #888; }
+
+        /* Modal Background */
+        .image-modal {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+        .image-modal img.modal-content { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .image-modal .close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 2rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .image-modal .close:hover { color: #ff4d4f; }
+
+        @media (max-width: 768px) {
+            .upload-box img { max-height: 140px; }
+            .card-header h5 { font-size: 1rem; }
+            .form-select { font-size: 0.9rem; }
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+<br>
+<!-- MAIN CONTENT -->
+<main class="container my-5">
+
+    <!-- Welcome -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Welcome, <span class="text-primary">{{ user_name }}</span></h2>
+        <p class="text-muted">Manage your verification documents below</p>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="card shadow-lg border-0 mb-5">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fa fa-upload me-2"></i> Upload Verification Document</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="row g-4">
+                {% csrf_token %}
+
+                <!-- Document Select -->
+                <div class="col-12">
+                    <label for="id_document" class="form-label fw-semibold">Select Document</label>
+                    <select name="document" id="id_document" class="form-select">
+                        <option value="" selected disabled>Select Document</option>
+                        {% for value, label in form.document.field.choices %}
+                            {% if value %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Front & Back Images -->
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Front Image</label>
+                        <div class="upload-box text-center p-3 border rounded">
+                            <input type="file" name="front_image" id="frontImageInput" accept="image/*">
+                            <label for="frontImageInput" class="btn btn-outline-primary btn-sm mb-2">
+                                <i class="fa fa-upload me-1"></i> Upload Front
+                            </label>
+                            <img id="frontImagePreview" src="{% static 'img/file.png' %}" alt="Front Preview" class="img-fluid rounded shadow-sm">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Back Image</label>
+                        <div class="upload-box text-center p-3 border rounded">
+                            <input type="file" name="back_image" id="backImageInput" accept="image/*">
+                            <label for="backImageInput" class="btn btn-outline-primary btn-sm mb-2">
+                                <i class="fa fa-upload me-1"></i> Upload Back
+                            </label>
+                            <img id="backImagePreview" src="{% static 'img/file.png' %}" alt="Back Preview" class="img-fluid rounded shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="col-12 text-end mt-3">
+                    <button class="btn btn-success px-4" type="submit">
+                        <i class="fas fa-cloud-upload-alt me-2"></i> Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Document List -->
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fa fa-folder-open me-2"></i> Your Documents</h5>
+            <span class="badge bg-light text-dark">{{ user_docs|length }} Uploaded</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Document</th>
+                            <th>Front Image</th>
+                            <th>Back Image</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in user_docs %}
+                        <tr>
+                            <td class="fw-semibold">{{ doc.document.name }}</td>
+                            <td><img src="{{ doc.front_image.url }}" class="img-thumbnail clickable-img" width="100"></td>
+                            <td>
+                                {% if doc.back_image %}
+                                    <img src="{{ doc.back_image.url }}" class="img-thumbnail clickable-img" width="100">
+                                {% else %}
+                                    <span class="text-muted fst-italic">Not uploaded</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if doc.status == "verified" %}
+                                    <span class="badge bg-success px-3 py-2">Verified</span>
+                                {% elif doc.status == "rejected" %}
+                                    <span class="badge bg-danger px-3 py-2">Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark px-3 py-2">Unverified</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                <i class="fa fa-info-circle me-2"></i> No documents uploaded yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+</main>
+
+    {% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById("frontImageInput").addEventListener("change", function (event) {
+    const preview = document.getElementById("frontImagePreview");
+    const file = event.target.files[0];
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove("d-none");
+    }
+});
+
+document.getElementById("backImageInput").addEventListener("change", function (event) {
+    const preview = document.getElementById("backImagePreview");
+    const file = event.target.files[0];
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove("d-none");
+    }
+});
+
+
+$(document).ready(function(){
+    // Preview function
+    function setupPreview(inputId, previewId){
+        const input = $('#' + inputId);
+        const preview = $('#' + previewId);
+        input.on('change', function(){
+            const file = this.files[0];
+            if(file){
+                preview.attr('src', URL.createObjectURL(file));
+            }
+        });
+        preview.on('click', function(){ openImageModal(preview.attr('src')); });
+    }
+
+    setupPreview('frontImageInput', 'frontImagePreview');
+    setupPreview('backImageInput', 'backImagePreview');
+
+    // Clickable existing images
+    $('.clickable-img').on('click', function(){ openImageModal($(this).attr('src')); });
+
+    // Image Modal
+    function openImageModal(src){
+        $('#modalImage').attr('src', src);
+        $('#imageModal').fadeIn();
+    }
+    $('.image-modal .close, .image-modal').on('click', function(e){
+        if(e.target !== this) return;
+        $('#imageModal').fadeOut();
+    });
+});
+</script>
+{% endblock %}

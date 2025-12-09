@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% load humanize %}
+
+<style>
+    /* Message container */
+.message-container {
+    margin-top: 15px;
+}
+
+/* Base alert style */
+.custom-alert {
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Icons */
+.alert-icon {
+    font-size: 1.3rem;
+}
+
+/* Alert Colors */
+.success {
+    background: #d4f8df;
+    color: #0f7b2d;
+    border-left: 6px solid #28a745;
+}
+
+.error {
+    background: #fdd9d9;
+    color: #b31217;
+    border-left: 6px solid #dc3545;
+}
+
+.warning {
+    background: #fff3cd;
+    color: #856404;
+    border-left: 6px solid #ffc107;
+}
+
+.info {
+    background: #dbeafe;
+    color: #0c4a6e;
+    border-left: 6px solid #0d6efd;
+}
+
+/* Smooth fade-in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.stylish-btn {
+    background-color: #b31217 !important; /* button background */
+    border-color: #b31217 !important;     /* button border */
+    color: #fff !important;                /* text color */
+    font-weight: bold;
+    /* Add any other styling you want */
+}
+
+</style>
+   <br>
+
+<br>
+<div class="container my-5">
+  <div class="row">
+    
+    <!-- Left side: Product images gallery -->
+    <div class="col-md-5">
+      <div class="mb-3">
+        {% if images %}
+          <!-- Main large image -->
+          <img src="{{ images.0.image.url }}" alt="{{ product.title }}" class="img-fluid rounded shadow-sm" id="mainImage" style="width: 100%; height: auto; object-fit: contain;">
+        {% else %}
+          <p>No images available.</p>
+        {% endif %}
+      </div>
+      
+      <!-- Thumbnails -->
+      <div class="d-flex gap-2 flex-wrap">
+        {% for img in images %}
+          <img src="{{ img.image.url }}" alt="{{ product.title }}" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+               onclick="document.getElementById('mainImage').src='{{ img.image.url }}'">
+        {% endfor %}
+      </div>
+    </div>
+    
+    <!-- Right side: Product details -->
+    <div class="col-md-7">
+      <h2 class="fw-bold">{{ product.title }}</h2>
+      
+      <p class="text-muted">
+        <strong>Type:</strong> {{ product.get_type_display }}
+      </p>
+      
+      {% if product.type == 'sell' %}
+        <h4 class="text-success">₹{{ product.price|intcomma }}</h4>
+      {% elif product.type == 'rent' %}
+        <h4 class="text-primary">₹{{ product.rent_per_day|intcomma }} / day</h4>
+      {% endif %}
+      
+      <hr>
+      
+      <h5>Description</h5>
+      <p>{{ product.description|linebreaksbr }}</p>
+      
+      <hr>
+      
+   {% if product.type == 'rent' %}
+  <!-- Book Now Button -->
+  <form method="post" action="{% url 'book_product' product.id %}" class="d-grid">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary btn-lg fw-bold stylish-btn">
+      <i class="fas fa-shopping-cart me-2"></i> Book Now
+    </button>
+  </form>
+
+{% elif product.type == 'sell' or product.type == 'resell' %}
+  <!-- Enquiry Button -->
+  <a href="{% url 'enquiry' product.id %}" class="btn btn-primary btn-lg w-100 fw-bold stylish-btn d-grid justify-content-center align-items-center">
+    <i class="fas fa-envelope me-2"></i> Enquiry
+  </a>
+{% endif %}
+
+
+
+{% if messages %}
+  <div class="message-container">
+    {% for message in messages %}
+      <div class="custom-alert {{ message.tags }}">
+        <span class="alert-icon">
+          {% if message.tags == "success" %}
+            ✔
+          {% elif message.tags == "error" %}
+            ✖
+          {% elif message.tags == "warning" %}
+            ⚠
+          {% else %}
+            ℹ
+          {% endif %}
+        </span>
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+      
+      <hr>
+      
+    <a href="{{ back_url }}" class="btn btn-secondary">Back to Products</a>
+
+
+    </div>
+    
+  </div>
+</div>
+
+<br>
+         <script>
+    setTimeout(() => {
+        document.querySelectorAll(".custom-alert").forEach(alert => {
+            alert.style.opacity = "0";
+            alert.style.transition = "0.5s";
+        });
+    }, 4000);
+</script>
+{% endblock %}

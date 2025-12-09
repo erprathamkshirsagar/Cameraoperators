@@ -1,0 +1,548 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+  <style>
+    /* =============================
+   FILTER SECTION
+   ============================= */
+
+/* Container margin for filter section */
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+/* Heading style */
+h3.fw-bold {
+    font-size: 1.75rem;
+    color: #222;
+    margin-bottom: 1rem;
+    border-bottom: 3px solid #a9a712; /* subtle green underline */
+    padding-bottom: 0.25rem;
+}
+
+/* Label style */
+label.fw-bold {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #555;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Select dropdown styling */
+.form-select {
+    border: 0.5px solid #2d0505; /* Bootstrap green */
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    color: #222;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Select focus effect */
+.form-select:focus {
+    border-color: #650d0d; /* golden shade */
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+    outline: none;
+    color: #111;
+}
+
+/* Option text color */
+.form-select option {
+    color: #222;
+}
+
+/* Responsive: center on small devices */
+@media (max-width: 576px) {
+    .col-md-4 {
+        margin: 0 auto;
+        float: none;
+        width: 100%;
+        max-width: 320px;
+    }
+}
+
+
+/* =============================
+   CARD STYLES
+   ============================= */
+
+/* Fixed card size and layout */
+.card {
+    width: 100%;              /* Responsive width by Bootstrap grid */
+    max-width: 280px;         /* Fixed max width */
+    height: 420px;            /* Fixed height */
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    transition: box-shadow 0.3s ease;
+    margin: 0 auto;           /* Center inside column */
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Fixed image height and styling inside card */
+.card .card-img-top {
+    width: 100%;
+    height: 220px;            /* Fixed image height */
+    object-fit: contain;
+    background-color: #fff;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* Card body layout */
+.card-body {
+    height: calc(420px - 220px); /* Total height minus image height */
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+/* Buttons container in card body */
+.card-body .d-flex.gap-2 {
+    margin-top: auto;       /* Push buttons to bottom */
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+/* Buttons style */
+.d-flex.gap-2 > a {
+    flex: 1 1 0;
+    min-width: 100px;
+    font-weight: 600;
+    text-align: center;
+    padding: 0.5rem 0;
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+}
+
+/* Update button - green outline and hover */
+.btn-outline-warning {
+    border-color: #28a745; /* Bootstrap green */
+    color: #28a745;
+}
+
+.btn-outline-warning:hover,
+.btn-outline-warning:focus {
+    background-color: #28a745;
+    color: #fff;
+    border-color: #28a745;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+/* Delete button - red outline and hover */
+.btn-outline-danger {
+    border-color: #dc3545; /* Bootstrap red */
+    color: #dc3545;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+    background-color: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* Cursor pointer on buttons */
+.d-flex.gap-2 > a:hover {
+    cursor: pointer;
+}
+
+
+/* =============================
+   GLOBAL THEME COLORS
+   ============================= */
+
+:root {
+    --red: #D10024;
+    --black: #000000;
+    --light-red: #ffe5e9;
+}
+
+
+/* =============================
+   PAGE & TABLE STYLES
+   ============================= */
+
+/* Page container */
+.orders-wrapper {
+    width: 100%;
+    max-width: 1250px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Page title */
+.orders-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 20px;
+}
+
+/* Table container */
+.table-box {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+    background: #fff;
+}
+
+/* Custom table styling */
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+}
+
+.custom-table thead {
+    background: var(--black);
+    color: #fff;
+}
+
+.custom-table th,
+.custom-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    font-size: 14px;
+}
+
+.custom-table tbody tr:hover {
+    background: var(--light-red);
+}
+
+/* =============================
+   BADGES
+   ============================= */
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-red {
+    background: var(--red);
+    color: #fff;
+}
+
+.badge-black {
+    background: var(--black);
+    color: #fff;
+}
+
+/* =============================
+   BUTTONS
+   ============================= */
+
+.btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+    display: inline-block;
+}
+
+.btn-red {
+    background: var(--red);
+    color: #fff;
+}
+
+.btn-red:hover {
+    background: #b3001e;
+}
+
+.btn-black {
+    background: var(--black);
+    color: #fff;
+}
+
+.btn-black:hover {
+    background: #333;
+}
+
+/* =============================
+   DESCRIPTION CELL ELLIPSIS
+   ============================= */
+
+.description-cell {
+    max-width: 200px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+/* No data message */
+.no-bookings {
+    padding: 16px;
+    background: var(--red);
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 10px;
+}
+
+  </style>
+{% load humanize %}  <!-- Load humanize at top -->
+
+<div class="container my-5">
+
+    <!-- ADD / UPDATE PRODUCT -->
+    <h2 class="fw-bold text-danger mb-4">
+        {% if edit_product %} Update Product {% else %} Add New Product {% endif %}
+    </h2>
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <input type="hidden" name="product_id" value="{{ edit_product.id|default_if_none:'' }}">
+
+    <div class="row g-3 mb-4">
+        <!-- Category -->
+        <div class="col-md-4">
+            <label class="form-label fw-bold" for="categorySelect">Category</label>
+            <select id="categorySelect" class="form-select" onchange="location='?category='+this.value" required>
+                <option value="">-- Select Category --</option>
+                {% for c in product_categories %}
+    <option value="{{ c.id }}" {% if selected_category == c.id|stringformat:'s' %}selected{% endif %}>
+        {{ c.name }}
+    </option>
+{% endfor %}
+
+            </select>
+        </div>
+
+        <!-- Brand -->
+        <div class="col-md-4">
+            <label class="form-label fw-bold" for="brandSelect">Brand</label>
+            <select id="brandSelect" class="form-select" 
+                    {% if not brands %}disabled{% endif %}
+                    onchange="location='?category={{ selected_category }}&brand='+this.value" required>
+                <option value="">-- Select Brand --</option>
+                {% for b in brands %}
+                    <option value="{{ b.id }}" {% if selected_brand == b.id|stringformat:'s' %}selected{% endif %}>
+                        {{ b.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Model -->
+        <div class="col-md-4">
+            <label class="form-label fw-bold" for="modelSelect">Model</label>
+            <select id="modelSelect" class="form-select" name="product_model"
+                    {% if not models %}disabled{% endif %} required>
+                <option value="">-- Select Model --</option>
+                {% for m in models %}
+                    <option value="{{ m.id }}" {% if edit_product and edit_product.product_model.id == m.id %}selected{% endif %}>
+                        {{ m.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Title -->
+    <div class="mb-3">
+        <label class="form-label fw-bold" for="titleInput">Product Title</label>
+        <input id="titleInput" type="text" name="title" class="form-control" 
+               value="{{ edit_product.title|default_if_none:'' }}" required placeholder="Enter product title">
+    </div>
+
+    <!-- Type -->
+    <div class="mb-3">
+        <label class="form-label fw-bold" for="productType">Product Type</label>
+        <select id="productType" class="form-select" name="type" onchange="showFields()" required>
+            <option value="">Select Type</option>
+            <option value="sell" {% if edit_product.type == 'sell' %}selected{% endif %}>Sell</option>
+            <option value="rent" {% if edit_product.type == 'rent' %}selected{% endif %}>Rent</option>
+            <option value="resell" {% if edit_product.type == 'resell' %}selected{% endif %}>Resell</option>
+        </select>
+    </div>
+
+    <!-- Price -->
+    <div id="priceBox" class="mb-3" style="display:none;">
+        <label class="form-label fw-bold" for="priceInput">Price (Sell / Resell)</label>
+        <input id="priceInput" type="number" class="form-control" name="price" 
+               value="{{ edit_product.price|default_if_none:'' }}">
+    </div>
+
+    <!-- Rent -->
+    <div id="rentBox" class="mb-3" style="display:none;">
+        <label class="form-label fw-bold" for="rentInput">Rent Per Day</label>
+        <input id="rentInput" type="number" class="form-control" name="rent_per_day" 
+               value="{{ edit_product.rent_per_day|default_if_none:'' }}">
+    </div>
+
+    <!-- Description -->
+    <div class="mb-3">
+        <label class="form-label fw-bold" for="descriptionTextarea">Description</label>
+        <textarea id="descriptionTextarea" class="form-control" name="description" rows="4" required>{{ edit_product.description|default_if_none:'' }}</textarea>
+    </div>
+
+    <!-- Images -->
+   <div class="mb-4">
+    <label class="form-label fw-bold" for="imagesInput">Upload Images</label>
+    <input id="imagesInput" type="file" class="form-control" name="images" multiple required>
+    <small class="form-text text-muted">Leave empty if you don’t want to change images.</small>
+</div>
+
+
+    {% if edit_product %}
+        <button type="submit" class="btn btn-success w-100 fw-bold">Update Product</button>
+    {% else %}
+        <button type="submit" class="btn btn-primary w-100 fw-bold">Save Product</button>
+    {% endif %}
+</form>
+
+    <hr class="my-5">
+
+    <!-- FILTER -->
+    <h3 class="fw-bold mb-3">My Products</h3>
+<div class="row mb-4">
+    <div class="col-md-4 mx-auto">
+        <label class="fw-bold" for="filterType">Filter by Type</label>
+        <select id="filterType" class="form-select" onchange="location='?type='+this.value">
+            <option value="">All Products</option>
+            <option value="sell" {% if selected_type == 'sell' %}selected{% endif %}>Sell</option>
+            <option value="rent" {% if selected_type == 'rent' %}selected{% endif %}>Rent</option>
+            <option value="resell" {% if selected_type == 'resell' %}selected{% endif %}>Resell</option>
+        </select>
+    </div>
+</div>
+
+
+    <!-- PRODUCT LIST -->
+     
+    <div class="row mt-3">
+        {% for item in items %}
+            <div class="col-md-3 col-sm-6 mb-4 d-flex justify-content-center">
+                <div class="card h-100 shadow-sm border-0 rounded-3">
+
+                    <!-- MAIN PRODUCT IMAGE -->
+                    <div class="overflow-hidden">
+                        {% if item.images.all %}
+                            <img src="{{ item.images.all.0.image.url }}" alt="{{ item.title }}"
+                                 class="card-img-top"
+                                 style="height:220px; object-fit:contain; background:#fff;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/220x220?text=No+Image"
+                                 class="card-img-top" style="height:220px; object-fit:contain;">
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body d-flex flex-column">
+
+                        <!-- TITLE -->
+                        <h6 class="card-title fw-semibold text-dark" style="min-height:48px;">
+                            {{ item.title|truncatechars:50 }}
+                        </h6>
+
+                        <!-- MODEL & TYPE BADGE -->
+                        <p class="text-muted small mb-1">
+                            <i class="fa fa-tag"></i> {{ item.product_model.name }}
+                            <span class="badge bg-info text-dark ms-2">{{ item.type|title }}</span>
+                        </p>
+
+                        <!-- PRICE -->
+                        <h5 class="fw-bold text-danger mb-2">
+                            {% if item.type != 'rent' %}
+                                ₹{{ item.price|intcomma }}
+                            {% else %}
+                                ₹{{ item.rent_per_day|intcomma }}/day
+                            {% endif %}
+                        </h5>
+
+                        <!-- DESCRIPTION -->
+                        <p class="text-muted small mb-3" style="flex-grow:1;">
+                            {{ item.description|truncatechars:70 }}
+                        </p>
+
+                        <!-- ACTION BUTTONS -->
+                        <div class="d-flex gap-2 mt-auto">
+                            <a href="{% url 'update_product' item.id %}" 
+                            class="btn btn-outline-warning btn-sm flex-fill fw-bold">
+                                Update
+                            </a>
+
+                            <a href="{% url 'delete_product' item.id %}" 
+                            class="btn btn-outline-danger btn-sm flex-fill fw-bold"
+                            onclick="return confirm('Are you sure?')">
+                                Delete
+                            </a>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center text-muted">No products available.</p>
+        {% endfor %}
+    </div>
+
+</div>
+
+<script>
+function openUpdateModal(id, title, price, rent, description) {
+    document.getElementById("update_id").value = id;
+    document.getElementById("update_title").value = title;
+    document.getElementById("update_price").value = price;
+    document.getElementById("update_rent").value = rent;
+    document.getElementById("update_description").value = description;
+
+    var updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
+    updateModal.show();
+}
+</script>
+
+<script>
+function showFields() {
+    let type = document.getElementById("productType").value;
+
+    let priceBox = document.getElementById("priceBox");
+    let rentBox = document.getElementById("rentBox");
+
+    if (type === "sell" || type === "resell") {
+        priceBox.style.display = "block";
+        rentBox.style.display = "none";
+    } else if (type === "rent") {
+        priceBox.style.display = "none";
+        rentBox.style.display = "block";
+    } else {
+        priceBox.style.display = "none";
+        rentBox.style.display = "none";
+    }
+}
+
+// Hide both on first load
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("priceBox").style.display = "none";
+    document.getElementById("rentBox").style.display = "none";
+});
+</script>
+{% endblock %}

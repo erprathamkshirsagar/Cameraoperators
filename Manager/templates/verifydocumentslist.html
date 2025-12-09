@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Locations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #f4f6f9; padding: 20px; }
+    .navbar { background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); height: 60px; }
+    .sidebar { position: fixed; top: 60px; left: 0; width: 230px; height: calc(100% - 60px); background-color: #003f8c; padding-top: 20px; }
+    .sidebar a { display: block; color: #fff; padding: 12px 20px; text-decoration: none; font-size: 15px; border-left: 4px solid transparent; transition: 0.3s; }
+    .sidebar a:hover, .sidebar a.active { background-color: #0052b8; border-left: 4px solid #ffc107; }
+    .main-content { margin-left: 230px; padding: 80px 30px 30px; }
+    .list-group-item { cursor: pointer; }
+    .nested { margin-left: 20px; }
+    .item-badge { background: #ffc107; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; margin: 2px; display: inline-flex; align-items: center; }
+    .delete-btn, .add-btn { font-size: 0.75rem; padding: 0 5px; margin-left: 5px; }
+    .add-form input { width: auto; display: inline-block; margin-right: 5px; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg fixed-top px-3">
+  <button class="btn btn-outline-primary d-lg-none me-2" id="menu-toggle"><i class="bi bi-list"></i></button>
+  <a class="navbar-brand fw-bold text-primary" href="{% url 'admindashboard' %}">
+    <img src="{% static 'logo1.png' %}" alt="Logo" style="height:40px;">
+  </a>
+  <span class="ms-auto fw-semibold"><i class="bi bi-person-circle"></i> {{ request.user.username }}</span>
+</nav>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <!-- Dashboard -->
+  <a href="{% url 'admindashboard' %}" >
+    <i class="bi bi-house"></i> Dashboard
+  </a>
+  
+  <!-- Manage Categories -->
+  <a href="{% url 'manage_categories' %}">
+    <i class="bi bi-file-earmark-text"></i> Manage Categories
+  </a>
+  
+  <!-- Manage Locations -->
+  <a href="{% url 'manage_locations' %}">
+    <i class="bi bi-map"></i> Manage Locations
+  </a>
+
+  <!-- Verification Document List -->
+  <a href="{% url 'verifydocumentslist' %}"class="active">
+    <i class="bi bi-file-earmark-check"></i> Verification Docs List
+  </a>
+
+  <!-- Users -->
+  <a href="{% url 'adminuserdetails' %}">
+    <i class="bi bi-person"></i> Users
+  </a>
+
+  <!-- Product Management -->
+  <a href="{% url 'productmanager' %}">
+    <i class="bi bi-box"></i> Product Management
+  </a>
+
+  <!-- Logout -->
+  <a href="{% url 'adminlogout' %}">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>   
+</div>
+
+
+<div class="main-content">
+  <div class="container mt-5">
+
+  <h3 class="mb-4">Verification Documents</h3>
+
+  <!-- Add Form -->
+  <form method="post" class="row g-2 mb-3">
+    {% csrf_token %}
+    <div class="col-md-4">
+      {{ form.name }}
+    </div>
+    <div class="col-md-4">
+      {{ form.description }}
+    </div>
+    <div class="col-md-4">
+      <button type="submit" name="add_document" class="btn btn-primary">Add Document</button>
+    </div>
+  </form>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="mb-3">
+    {% for message in messages %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Document Table -->
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in documents %}
+      <tr>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="doc_id" value="{{ doc.id }}">
+          <td>{{ doc.id }}</td>
+          <td><input type="text" name="name" value="{{ doc.name }}" class="form-control form-control-sm"></td>
+          <td><input type="text" name="description" value="{{ doc.description }}" class="form-control form-control-sm"></td>
+          <td class="d-flex gap-2">
+            <button type="submit" name="edit_document" class="btn btn-sm btn-warning">Update</button>
+            <button type="submit" name="delete_document" class="btn btn-sm btn-danger">Delete</button>
+          </td>
+        </form>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center">No documents found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

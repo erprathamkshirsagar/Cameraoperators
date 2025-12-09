@@ -1,0 +1,440 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>CameraOperator</title>
+		<!-- Google font -->
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Font Awesome 5 (CDN) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+
+		<!-- Bootstrap -->
+		{% load static %}
+		<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
+		<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}"/>
+  <style>
+   .custom-form {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 30px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Label Styling */
+.custom-form .form-label {
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+/* Inputs, Selects, Textarea */
+.custom-form .form-control,
+.custom-form .form-select {
+  border: 2px solid #28a745;  /* Bootstrap green */
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  color: #222;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-form .form-control:focus,
+.custom-form .form-select:focus {
+  border-color: #a9a712; /* subtle yellow-green */
+  box-shadow: 0 0 8px rgba(169, 167, 18, 0.5);
+  outline: none;
+}
+
+/* Textarea resize */
+.custom-form textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Spacing for form groups */
+.custom-form .mb-3, .custom-form .mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Smaller text for hints */
+.custom-form .form-text {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* Button Styling */
+.custom-form button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 0;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.custom-form button[type="submit"]:hover,
+.custom-form button[type="submit"]:focus {
+  background-color: #218838;
+  outline: none;
+}
+
+/* Responsive: smaller padding on small screens */
+@media (max-width: 576px) {
+  .custom-form {
+    padding: 20px 15px;
+  }
+}
+
+
+  </style>
+
+    </head>
+	<body>
+		<!-- HEADER -->
+<header>
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <div class="container">
+            <div class="row align-items-center">
+                
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="{% url 'dashboard' %}" class="logo">
+                            <img src="{% static 'img/logo.png' %}" alt="Logo">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                <!-- SEARCH BAR -->
+                <div class="col-md-6">
+                    <div class="header-search">
+                        <form method="get" action="{% url 'dashboard' %}">
+                            <select class="input-select" name="category">
+                                <option value="0">All Categories</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <input class="input" type="text" name="q" placeholder="Search here">
+                            <button class="search-btn btn btn-primary" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- /SEARCH BAR -->
+
+                <!-- ACCOUNT -->
+<div class="col-md-3 text-end">
+    <div class="header-ctn d-flex justify-content-end align-items-center">
+
+        {% if request.session.user_id %}
+            <!-- Messages (only if logged in) -->
+            <div class="me-3 position-relative">
+                <a href="{% url 'chat' %}">
+                    <i class="fa fa-envelope-o"></i>
+                    <span>Messages</span>
+                    <div class="qty position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        2
+                    </div>
+                </a>
+            </div>
+
+
+<!-- Profile Dropdown -->
+<div class="dropdown">
+    <a class="dropdown-toggle text-decoration-none d-flex align-items-center" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-user-o me-2"></i>
+        <span>My Profile</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="profileDropdown" style="min-width: 200px;">
+
+        <!-- Welcome Section -->
+        <li class="px-3 py-2 text-start">
+    <div class="small text-muted">Welcome,</div>
+<div class="fw-bold">
+    {{ user_name }}
+    {% if profile_status == 'verified' %}
+        <img src="{% static 'img/verified.png' %}" alt="Verified" class="ms-2" style="width:18px; height:18px;">
+    {% endif %}
+</div>
+
+</li>
+
+        <li><hr class="dropdown-divider my-1"></li>
+
+        <!-- Profile -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'profile' %}">
+                <i class="fa fa-id-badge me-2"></i> Profile
+            </a>
+        </li>
+		 <!-- Document Verification -->
+        <!-- Document Verification -->
+{% if profile_status != 'verified' %}
+<li>
+    <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'documentverification' %}">
+        <i class="fa fa-users me-2"></i> Document Verification
+    </a>
+</li>
+{% endif %}
+
+
+        <!-- Freelancer -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'freelancer' %}">
+                <i class="fa fa-users me-2"></i> Freelancer
+            </a>
+        </li>
+
+        <!-- Booking -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'dashboard' %}">
+<i class="fas fa-calendar me-2"></i> Booking
+            </a>
+        </li>
+
+        <!-- Product -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1" href="{% url 'dashboard' %}">
+        <i class="fas fa-box-open me-2"></i> Product
+            </a>
+        </li>
+
+        <li><hr class="dropdown-divider my-1"></li>
+
+        <!-- Logout -->
+        <li>
+            <a class="dropdown-item d-flex align-items-center py-1 text-danger" href="{% url 'logout' %}">
+        <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </li>
+
+    </ul>
+</div>
+
+
+        {% else %}
+            <!-- Login Link -->
+            <div>
+                <a class="text-decoration-none" href="{% url 'login' %}">
+                    <i class="fa fa-user-o"></i> Login
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Menu Toggle for mobile -->
+        <div class="menu-toggle ms-3 d-lg-none">
+            <a href="#" class="text-decoration-none">
+                <i class="fa fa-bars"></i>
+                <span>Menu</span>
+            </a>
+        </div>
+
+    </div>
+</div>
+<!-- /ACCOUNT -->
+
+
+            </div>
+        </div>
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+ <!-- NAVIGATION -->
+<nav id="navigation">
+    <div class="container">
+        <div id="responsive-nav">
+            <ul class="main-nav nav navbar-nav">
+                <li class="active"><a href="{% url 'dashboard' %}">Home</a></li>
+                <!-- Loop through categories -->
+                {% for cat in categories %}
+                    <li><a href="#">{{ cat.name }}</a></li>
+                {% endfor %}
+                
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- /NAVIGATION -->
+<br>
+
+{% load humanize %}  <!-- Load humanize at top -->
+
+<div class="container my-5">
+
+    <!-- ADD / UPDATE PRODUCT -->
+    <h2 class="fw-bold text-danger mb-4">
+       Update Product Details
+    </h2>
+<form method="POST" enctype="multipart/form-data" novalidate class="custom-form">
+  {% csrf_token %}
+  <input type="hidden" name="product_id" value="{{ product.id }}">
+
+  <div class="mb-3">
+    <label for="titleInput" class="form-label fw-bold">Title</label>
+    <input id="titleInput" type="text" name="title" class="form-control" value="{{ product.title }}" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="productType" class="form-label fw-bold">Type</label>
+    <select id="productType" name="type" class="form-select" onchange="toggleFields()" required>
+      <option value="">Select Type</option>
+      <option value="sell" {% if product.type == "sell" %}selected{% endif %}>Sell</option>
+      <option value="rent" {% if product.type == "rent" %}selected{% endif %}>Rent</option>
+      <option value="resell" {% if product.type == "resell" %}selected{% endif %}>Resell</option>
+    </select>
+  </div>
+
+  <div class="mb-3" id="priceBox" style="display:none;">
+    <label for="priceInput" class="form-label fw-bold">Price</label>
+    <input id="priceInput" type="number" name="price" class="form-control" value="{{ product.price }}">
+  </div>
+
+  <div class="mb-3" id="rentBox" style="display:none;">
+    <label for="rentInput" class="form-label fw-bold">Rent per day</label>
+    <input id="rentInput" type="number" name="rent_per_day" class="form-control" value="{{ product.rent_per_day }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="descriptionTextarea" class="form-label fw-bold">Description</label>
+    <textarea id="descriptionTextarea" name="description" class="form-control" rows="4" required>{{ product.description }}</textarea>
+  </div>
+
+  <div class="mb-4">
+    <label for="imagesInput" class="form-label fw-bold">Upload Images</label>
+    <input id="imagesInput" type="file" name="images" class="form-control" multiple>
+    <small class="form-text text-muted">Leave empty if you don’t want to change images.</small>
+  </div>
+
+  <button type="submit">Update Product</button>
+</form>
+   
+
+</div>
+
+<br>
+		<!-- FOOTER -->
+		<footer id="footer">
+			<!-- top footer -->
+			<div class="section">
+				<!-- container -->
+				<div class="container">
+					<!-- row -->
+					<div class="row">
+						<div class="col-md-3 col-xs-6">
+							<div class="footer">
+								<h3 class="footer-title">About Us</h3>
+								<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.</p>
+								<ul class="footer-links">
+									<li><a href="#"><i class="fa fa-map-marker"></i>1734 Stonecoal Road</a></li>
+									<li><a href="#"><i class="fa fa-phone"></i>+021-95-51-84</a></li>
+									<li><a href="#"><i class="fa fa-envelope-o"></i>email@email.com</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-xs-6">
+							<div class="footer">
+								<h3 class="footer-title">Categories</h3>
+								<ul class="footer-links">
+									<li><a href="#">Hot deals</a></li>
+									<li><a href="#">Laptops</a></li>
+									<li><a href="#">Smartphones</a></li>
+									<li><a href="#">Cameras</a></li>
+									<li><a href="#">Accessories</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="clearfix visible-xs"></div>
+
+						<div class="col-md-3 col-xs-6">
+							<div class="footer">
+								<h3 class="footer-title">Information</h3>
+								<ul class="footer-links">
+									<li><a href="#">About Us</a></li>
+									<li><a href="#">Contact Us</a></li>
+									<li><a href="#">Privacy Policy</a></li>
+									<li><a href="#">Orders and Returns</a></li>
+									<li><a href="#">Terms & Conditions</a></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-xs-6">
+							<div class="footer">
+								<h3 class="footer-title">Service</h3>
+								<ul class="footer-links">
+									<li><a href="#">My Account</a></li>
+									<li><a href="#">View Cart</a></li>
+									<li><a href="#">Wishlist</a></li>
+									<li><a href="#">Track My Order</a></li>
+									<li><a href="#">Help</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<!-- /row -->
+				</div>
+				<!-- /container -->
+			</div>
+			<!-- /top footer -->
+
+			<!-- bottom footer -->
+			<div id="bottom-footer" class="section">
+				<div class="container">
+					<!-- row -->
+					<div class="row">
+						<div class="col-md-12 text-center">
+							<ul class="footer-payments">
+								<li><a href="#"><i class="fa fa-cc-visa"></i></a></li>
+								<li><a href="#"><i class="fa fa-credit-card"></i></a></li>
+								<li><a href="#"><i class="fa fa-cc-paypal"></i></a></li>
+								<li><a href="#"><i class="fa fa-cc-mastercard"></i></a></li>
+								<li><a href="#"><i class="fa fa-cc-discover"></i></a></li>
+								<li><a href="#"><i class="fa fa-cc-amex"></i></a></li>
+							</ul>
+							<span class="copyright">
+								<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+								Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved</a>
+							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+							</span>
+						</div>
+					</div>
+						<!-- /row -->
+				</div>
+				<!-- /container -->
+			</div>
+			<!-- /bottom footer -->
+		</footer>
+		<!-- /FOOTER -->
+
+
+
+		<script src="{% static 'js/jquery.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/slick.min.js' %}"></script>
+		<script src="{% static 'js/nouislider.min.js' %}"></script>
+		<script src="{% static 'js/jquery.zoom.min.js' %}"></script>
+		<script src="{% static 'js/main.js' %}"></script>
+	</body>
+</html>

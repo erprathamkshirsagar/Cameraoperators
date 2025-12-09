@@ -1,0 +1,368 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+
+
+    .freelancer-photo {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 3px solid red;
+    padding: 2px;
+    border-radius: 50%;
+    background: #fff;
+    transition: .3s;
+}
+.freelancer-photo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(255,0,0,.5);
+}
+
+
+.list-group-item.active {
+    background-color: #d10024!important;
+    border-color: #d10024!important;
+    color: #fff!important;
+}
+
+
+/* Sidebar Filter Card styling */
+.filter-card {
+    border-radius: 12px;
+    background: #ffffffc7;
+    backdrop-filter: blur(5px);
+    border: 1px solid #e3e6ef;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+/* Header of card */
+.filter-card .card-header {
+    background: #000000;
+    color: #fff;
+    border-radius: 12px 12px 0 0;
+}
+
+/* Freelancer Card */
+.freelancer-box {
+    border-radius: 12px;
+    background: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    align-items: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    transition: 0.25s ease-in-out;
+}
+
+.freelancer-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 22px rgba(0,0,0,0.14);
+}
+
+/* Image styling */
+.freelancer-img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e9ecef;
+}
+
+/* Skill badge */
+.skill-chip {
+    display: inline-block;
+    background: #d10024;
+    color: white;
+    padding: 3px 10px;
+    font-size: 12px;
+    border-radius: 20px;
+    margin: 2px;
+}
+
+/* View Profile button */
+.btn-profile {
+    background: #d10024;
+    color: #fff;
+    font-size: 13px;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.btn-profile:hover {
+    background: #ffffff;
+}
+
+/* Form style */
+.form-select, .form-control {
+    border-radius: 8px;
+}
+
+/* Section title */
+.section-title {
+    font-weight: 700;
+    color: #2d2f40;
+    margin-bottom: 15px;
+}
+.filter-card {
+border-radius: 12px;
+overflow: hidden;
+border: none;
+box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.freelancer-card {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 15px;
+border-radius: 12px;
+margin-bottom: 12px;
+background: #fff;
+box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+transition: 0.2s;
+}
+.freelancer-card:hover {
+transform: scale(1.02);
+box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+.skill-badge{
+background: #e91e63;
+color: #fff;
+font-size: 12px;
+padding: 3px 8px;
+border-radius: 6px;
+margin-right: 5px;
+}
+.profile-img{
+width: 65px;
+height: 65px;
+border-radius: 50%;
+object-fit: cover;
+border: 2px solid #e91e63;
+}
+.freelancer-card:hover .profile-img {
+    transform: scale(1.08);
+    border-color: #d10024;
+}
+
+
+
+
+/* Apply button color */
+.btn-primary {
+    background-color: #d10024 !important;
+    border-color: #d10024 !important;
+}
+
+.btn-primary:hover {
+    background-color: #b3001e !important;
+    border-color: #b3001e !important;
+}
+
+  .skill-row {
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  .skill-row:hover {
+    background-color: #e9f2ff;
+    box-shadow: 0 3px 8px rgba(13, 110, 253, 0.3);
+  }
+</style>
+ <style>
+    .gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+}
+
+.gallery-item {
+  position: relative;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fafafa;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.media-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+.delete-form {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  margin: 0;
+}
+
+.delete-form button {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+</style>
+
+<div class="container py-4">
+    <h1 class="mb-4">My Gallery</h1>
+
+    <!-- Upload Form -->
+    <form method="POST" enctype="multipart/form-data" class="mb-5">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="media" class="form-label">Upload photo/video/gallery:</label>
+            <input
+              type="file"
+              id="media"
+              name="media"
+              multiple
+              accept="image/*,video/*"
+              class="form-control"
+              required
+            />
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary">Add to Gallery</button>
+    </form>
+        <br>
+
+    <!-- Gallery Display -->
+{% if gallery_items %}
+<div class="gallery-grid">
+  {% for item in gallery_items %}
+    <div class="gallery-item position-relative" style="cursor:pointer;">
+      <div onclick="openModal('{{ item.media.url }}', {{ item.is_video|yesno:'true,false' }})">
+        {% if item.is_video %}
+          <video muted autoplay loop playsinline preload="metadata" class="media-thumb">
+            <source src="{{ item.media.url }}" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        {% else %}
+          <img src="{{ item.media.url }}" alt="Gallery media" class="media-thumb" />
+        {% endif %}
+      </div>
+
+      <!-- Delete button -->
+      <form method="POST" action="{% url 'gallery_delete' item.id %}" class="delete-form position-absolute">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger" 
+                onclick="return confirm('Are you sure you want to delete this item?');">
+          Delete
+        </button>
+      </form>
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+<p>No photos or videos uploaded yet.</p>
+{% endif %}
+
+
+</div>
+<!-- Modal for displaying media -->
+<div id="mediaModal" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100vw; height:100vh;
+    background:rgba(0,0,0,0.85);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    padding: 20px;
+    box-sizing: border-box;
+    ">
+  <span onclick="closeModal()" 
+        style="
+          position:absolute; 
+          top:20px; right:30px; 
+          font-size:40px; 
+          color:white; 
+          cursor:pointer; 
+          user-select:none;
+          z-index: 10000;">&times;</span>
+  <div id="modalContent" style="
+    max-width: 90vw;
+    max-height: 90vh;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+">
+  <video src="your-video.mp4" controls
+         style="
+           max-width: 100%;
+           max-height: 100%;
+           width: auto;
+           height: auto;
+           object-fit: contain;
+           display: block;
+         "></video>
+</div>
+
+</div>
+
+
+
+<div>
+
+
+</div>
+
+
+
+
+<br>
+
+<script>
+  function openModal(url, isVideo) {
+    const modal = document.getElementById('mediaModal');
+    const content = document.getElementById('modalContent');
+
+    if (isVideo) {
+      content.innerHTML = `
+        <video controls autoplay style="max-width:100%; max-height:100%;">
+          <source src="${url}" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      `;
+    } else {
+      content.innerHTML = `<img src="${url}" style="max-width:100%; max-height:100%;" />`;
+    }
+
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('mediaModal');
+    modal.style.display = 'none';
+    document.getElementById('modalContent').innerHTML = '';
+  }
+
+  // Optional: Close modal on clicking outside the content
+  document.getElementById('mediaModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+      closeModal();
+    }
+  });
+</script>
+
+{% endblock %}

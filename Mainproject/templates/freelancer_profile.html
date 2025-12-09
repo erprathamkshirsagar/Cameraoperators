@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+
+<style>
+/* Reset some basics */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container & layout */
+.wrapper {
+  max-width: 1140px;
+  margin: 40px auto;
+  padding: 0 15px;
+}
+
+.flex-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+}
+
+/* Columns */
+.col-large {
+  flex: 0 0 66.66%;
+  max-width: 66.66%;
+}
+
+.col-small {
+  flex: 0 0 30%;
+  max-width: 30%;
+}
+
+.col-full {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+.margin-bottom-large {
+  margin-bottom: 1.5rem;
+}
+
+.margin-top-large {
+  margin-top: 1.5rem;
+}
+
+/* Card common styles */
+.box {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.07);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: box-shadow 0.3s ease;
+}
+
+.box:hover {
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.1);
+}
+
+/* Profile Section */
+.flex-gap {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.profile-pic {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #d10024;
+  background: #fff;
+  transition: transform 0.3s ease;
+}
+
+.profile-pic:hover {
+  transform: scale(1.05);
+}
+
+.profile-details {
+  flex-grow: 1;
+  min-width: 250px;
+}
+
+.profile-details h2 {
+  font-weight: 700;
+  font-size: 2.3rem;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.3rem;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-details h2 img {
+  width: 22px;
+  height: 22px;
+}
+
+.profile-details p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-details p i {
+  color: #d10024;
+  font-size: 1.2rem;
+}
+
+/* Message button */
+.button-message {
+  background-color: #d10024;
+  color: #ffffff;
+  font-weight: 600;
+  border: 2px solid #d10024;   /* keeps shape on hover */
+  padding: 12px 32px;
+  border-radius: 999px;       /* perfect pill */
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  /* Smooth interaction */
+  transition: 
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Hover effect */
+.button-message:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+
+
+/* Skills Section */
+.skills-title {
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  color: #222;
+}
+
+.skill-entry {
+  background-color: #fafafa;
+  border-radius: 14px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.25s ease;
+  cursor: default;
+}
+
+.skill-entry:hover {
+  background-color: #f2f2f2;
+}
+
+.skill-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.skill-name {
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: #333;
+}
+
+.skill-price {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #d10024;
+}
+/* Book button */
+.button-book {
+  background-color: #d10024;
+  color: #ffffff;
+  font-weight: 600;
+  border: 2px solid #d10024;
+  padding: 8px 24px;
+  border-radius: 999px;     /* smooth pill shape */
+  cursor: pointer;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Hover */
+.button-book:hover {
+  background-color: #ffffff;
+  color: #d10024;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(209, 0, 36, 0.35);
+}
+
+/* Active (click) */
+.button-book:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(209, 0, 36, 0.25);
+}
+
+/* Focus (accessibility) */
+.button-book:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(209, 0, 36, 0.35);
+}
+
+
+/* Gallery Section */
+.gallery-section {
+  margin-top: 40px;
+}
+
+.gallery-section h4 {
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.gallery-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.gallery-card {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+  background-color: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.gallery-card img,
+.gallery-card video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+}
+
+/* Modal for media */
+#mediaModalAlt {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+#mediaModalAlt.show {
+  display: flex;
+}
+
+#mediaModalAlt .close-button {
+  position: absolute;
+  top: 20px; right: 30px;
+  font-size: 40px;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  z-index: 10000;
+  font-weight: 700;
+}
+
+#modalContentAlt {
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+#modalContentAlt img,
+#modalContentAlt video {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+}
+
+</style>
+
+<div class="wrapper">
+  <div class="flex-row">
+
+    <!-- LEFT: Profile Card (large column) -->
+    <div class="col-large col-full margin-bottom-large">
+      <div class="box">
+
+        <div class="flex-gap">
+          <!-- Profile Picture -->
+          <img src="{{ freelancer.profile_image.url|default:'/static/img/user.png' }}" alt="Profile Picture" class="profile-pic" />
+
+          <!-- Profile Info -->
+          <div class="profile-details">
+            <h2>
+              {{ freelancer.first_name }} {{ freelancer.surname }}
+              {% if freelancer.profile_status == 'verified' %}
+                <img src="{% static 'img/verified.png' %}" alt="Verified" title="Verified Freelancer" />
+              {% endif %}
+            </h2>
+
+            <p><i class="fas fa-map-marker-alt"></i> {{ freelancer.address|default:"Address not available" }}</p>
+
+            <a href="{% url 'chat_user' freelancer.id %}" class="button-message">
+              <i class="fa fa-envelope"></i> Message
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Skills List (small column) -->
+    <div class="col-small col-full">
+      <div class="box">
+        <h3 class="skills-title">Skills & Prices</h3>
+
+        {% if freelancer.skills.all %}
+          {% for skill in freelancer.skills.all %}
+            <div class="skill-entry">
+              <div class="skill-info-block">
+                <div class="skill-name">{{ skill.category.name }}</div>
+                <div class="skill-price">₹{{ skill.rate }}</div>
+              </div>
+              <a href="{% url 'booking_page' freelancer.id skill.id %}" class="button-book">Book</a>
+            </div>
+          {% endfor %}
+        {% else %}
+          <small style="color: #666; font-style: italic;">No skills listed</small>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Gallery Section -->
+    <div class="col-full gallery-section">
+      <h4>Gallery</h4>
+      <div class="gallery-grid">
+        {% if gallery_items %}
+          {% for item in gallery_items %}
+            <div class="gallery-card" onclick="openModalAlt('{{ item.media.url }}', {{ item.is_video|yesno:'true,false' }})">
+              {% if item.is_video %}
+                <video muted autoplay loop playsinline preload="metadata" tabindex="-1" aria-hidden="true">
+                  <source src="{{ item.media.url }}" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              {% else %}
+                <img src="{{ item.media.url }}" alt="Gallery Image" />
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <p style="color: #666; font-style: italic;">No gallery items available.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal for displaying media -->
+<div id="mediaModalAlt">
+  <span class="close-button" onclick="closeModalAlt()">&times;</span>
+  <div id="modalContentAlt"></div>
+</div>
+
+<script>
+function openModalAlt(url, isVideo) {
+  const modal = document.getElementById('mediaModalAlt');
+  const content = document.getElementById('modalContentAlt');
+
+  if (isVideo) {
+    content.innerHTML = `
+      <video controls autoplay controlsList="nodownload" style="max-width:100%; max-height:100%;">
+        <source src="${url}" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    `;
+    content.querySelector('video').addEventListener('contextmenu', e => e.preventDefault());
+  } else {
+    content.innerHTML = `<img src="${url}" style="max-width:100%; max-height:100%;" alt="Media Image"/>`;
+  }
+
+  modal.classList.add('show');
+}
+
+function closeModalAlt() {
+  const modal = document.getElementById('mediaModalAlt');
+  modal.classList.remove('show');
+  document.getElementById('modalContentAlt').innerHTML = '';
+}
+
+document.getElementById('mediaModalAlt').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModalAlt();
+});
+
+document.querySelectorAll('.gallery-card video').forEach(video => {
+  video.addEventListener('contextmenu', e => e.preventDefault());
+});
+</script>
+
+{% endblock %}

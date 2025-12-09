@@ -1,0 +1,643 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<style>
+  .alert-warning {
+    background: #fff7ed;
+    padding: 12px;
+    border-radius: 8px;
+    color: #9a1212;
+}
+
+
+.myapp-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.location-text {
+  white-space: nowrap;
+}
+
+
+    /* =========================
+   Card Rounded Corners
+   ========================= */
+.myapp-booking-card {
+    border-radius: 22px !important;
+}
+
+/* =========================
+   Stylish Inputs
+   ========================= */
+.myapp-stylish-input {
+    border-radius: 12px;
+    padding: 12px 15px;
+    border: 2px solid #e9e9e9;
+    transition: 0.3s;
+}
+
+.myapp-stylish-input:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 5px rgba(220, 53, 69, 0.4);
+}
+
+/* =========================
+   Detail Row
+   ========================= */
+.myapp-detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* =========================
+   Total Days and Amount
+   ========================= */
+.myapp-value-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.myapp-value-total {
+    font-size: 1.3rem;
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* =========================
+   Stylish Button
+   ========================= */
+.myapp-stylish-btn {
+    border-radius: 14px;
+    padding: 12px 0;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.35);
+    transition: 0.3s ease;
+}
+
+.myapp-stylish-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.45);
+}
+
+/* =========================
+   Flatpickr Date Styles
+   ========================= */
+.myapp-flatpickr-day-booked {
+    background-color: #ffcccc !important;
+    color: #b30000 !important;
+}
+
+.myapp-flatpickr-day-available {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+}
+
+/* =========================
+   Navigation Styles
+   ========================= */
+#navigation .nav,
+#navigation .navbar-nav {
+    flex-direction: row !important;
+}
+
+#navigation .navbar-nav .nav-link {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+
+#navigation ul li a {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* =========================
+   Freelancer Photo Styles
+   ========================= */
+.myapp-freelancer-photo {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 3px solid red;
+    padding: 2px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.myapp-freelancer-photo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+}
+
+/* =========================
+   Freelancer Page Wrapper & Layout
+   ========================= */
+.myapp-freelancer-layout {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+.myapp-freelancer-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.myapp-freelancer-col-left {
+    width: 25%;
+}
+
+.myapp-freelancer-col-right {
+    width: 75%;
+}
+
+/* =========================
+   Card Styles
+   ========================= */
+.myapp-card {
+    width: 100%;              /* Responsive width */
+    max-width: 280px;         /* Fixed max width */
+    height: 420px;            /* Fixed height */
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    transition: box-shadow 0.3s ease;
+    margin: 0 auto;           /* Center inside container */
+}
+
+.myapp-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Image inside card */
+.myapp-card .myapp-card-img-top {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    background-color: #fff;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+.myapp-card:hover .myapp-card-img-top {
+    transform: scale(1.05);
+}
+
+/* Card body layout */
+.myapp-card-body {
+    height: calc(420px - 220px);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+/* Buttons container in card body */
+.myapp-card-body .d-flex.gap-2 {
+    margin-top: auto;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+/* =========================
+   Filter Sidebar Card
+   ========================= */
+.myapp-filter-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 350px;  /* Adjust size here */
+    height: 1070px; /* example fixed height */
+}
+
+.myapp-filter-card .card-header {
+    padding: 12px 14px;
+    font-weight: 600;
+    background: #000;
+    color: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 12px 12px 0 0;
+}
+
+.myapp-filter-card .card-body {
+    padding: 14px;
+}
+
+/* =========================
+   Filter Form Elements (Labels, Selects, Inputs)
+   ========================= */
+.myapp-filter-card label,
+.myapp-filter-label {
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.myapp-filter-card select,
+.myapp-filter-card input,
+.myapp-filter-input {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+    height: 35px; /* example fixed height */
+
+}
+
+/* =========================
+   Filter Container & Form
+   ========================= */
+.myapp-filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.myapp-filter-container input[type="text"],
+.myapp-filter-container input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin: 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.myapp-filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 300px;
+}
+
+/* =========================
+   Filter Labels and Inputs
+   ========================= */
+.myapp-filter-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.myapp-filter-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.myapp-filter-input:focus {
+    border-color: #d10024;
+    outline: none;
+    box-shadow: 0 0 5px rgba(209, 0, 36, 0.5);
+}
+
+/* =========================
+   Filter Action Button
+   ========================= */
+.myapp-btn-primary {
+    background-color: #d10024;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 0;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.myapp-btn-primary:hover {
+    background-color: #a8001a;
+}
+
+/* =========================
+   Skill Filter (Radio Pills)
+   ========================= */
+.myapp-skill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.myapp-skill-item {
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    user-select: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.myapp-skill-item input[type="radio"] {
+    display: none;
+}
+
+.myapp-skill-item.myapp-skill-active {
+    background-color: #d10024;
+    color: #fff;
+    border-color: #d10024;
+}
+
+.myapp-skill-item:hover {
+    border-color: #d10024;
+}
+
+</style>
+<div class="myapp-freelancer-layout">
+  <div class="myapp-freelancer-row">
+
+    <!-- ✅ LEFT SIDEBAR FILTER -->
+    <div class="myapp-freelancer-col-left">
+      <div class="myapp-filter-card">
+
+        <div class="card-header">
+          <strong>Filter by Location & Products</strong>
+        </div>
+
+        <div class="card-body">
+          <form method="get" action="{% url 'product_display' %}">
+
+            <!-- ✅ LOCATION FILTERS -->
+            <label class="myapp-filter-label" for="country">Country</label>
+            <select id="country" name="country" class="myapp-filter-input" onchange="this.form.submit()">
+              <option value="">All</option>
+              {% for country in countries %}
+                <option value="{{ country.id }}" {% if selected_country == country.id %}selected{% endif %}>
+                  {{ country.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+            <label class="myapp-filter-label" for="state">State</label>
+            <select id="state" name="state" class="myapp-filter-input"
+                    {% if not states %}disabled{% endif %}
+                    onchange="this.form.submit()">
+              <option value="">All</option>
+              {% for state in states %}
+                <option value="{{ state.id }}" {% if selected_state == state.id %}selected{% endif %}>
+                  {{ state.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+            <label class="myapp-filter-label" for="city">City</label>
+            <select id="city" name="city" class="myapp-filter-input"
+                    {% if not cities %}disabled{% endif %}
+                    onchange="this.form.submit()">
+              <option value="">All</option>
+              {% for city in cities %}
+                <option value="{{ city.id }}" {% if selected_city == city.id %}selected{% endif %}>
+                  {{ city.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+            <label class="myapp-filter-label" for="taluka">Taluka</label>
+            <select id="taluka" name="taluka" class="myapp-filter-input"
+                    {% if not talukas %}disabled{% endif %}
+                    onchange="this.form.submit()">
+              <option value="">All</option>
+              {% for taluka in talukas %}
+                <option value="{{ taluka.id }}" {% if selected_taluka == taluka.id %}selected{% endif %}>
+                  {{ taluka.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+            <label class="myapp-filter-label" for="village">Village</label>
+            <select id="village" name="village" class="myapp-filter-input"
+                    {% if not villages %}disabled{% endif %}
+                    onchange="this.form.submit()">
+              <option value="">All</option>
+              {% for village in villages %}
+                <option value="{{ village.id }}" {% if selected_village == village.id %}selected{% endif %}>
+                  {{ village.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+<hr>
+            <!-- ✅ PRODUCT FILTERS -->
+            <label class="myapp-filter-label" for="category">Category</label>
+            <select id="category"
+                    name="category"
+                    class="myapp-filter-input"
+                    onchange="this.form.submit()">
+              <option value="">All Categories</option>
+              {% for category in product_categories  %}
+                <option value="{{ category.id }}"
+                  {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>
+                  {{ category.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+            <label class="myapp-filter-label" for="brand">Brand</label>
+            <select id="brand"
+                    name="brand"
+                    class="myapp-filter-input"
+                    {% if not brands %}disabled{% endif %}
+                    onchange="this.form.submit()">
+              <option value="">All Brands</option>
+              {% for brand in brands %}
+                <option value="{{ brand.id }}"
+                  {% if brand.id|stringformat:"s" == selected_brand %}selected{% endif %}>
+                  {{ brand.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+            <label class="myapp-filter-label" for="model">Model</label>
+            <select id="model"
+                    name="model"
+                    class="myapp-filter-input"
+                    {% if not models %}disabled{% endif %}
+                    onchange="this.form.submit()">
+              <option value="">All Models</option>
+              {% for model in models %}
+                <option value="{{ model.id }}"
+                  {% if model.id|stringformat:"s" == selected_model %}selected{% endif %}>
+                  {{ model.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+
+            <hr>
+
+            <!-- ✅ PRICE FILTER -->
+            <label class="myapp-filter-label" for="min_price">Min Price (₹)</label>
+            <input type="number" id="min_price" name="min_price"
+                   class="myapp-filter-input"
+                   placeholder="Min ₹"
+                   value="{{ min_price }}">
+
+            <label class="myapp-filter-label" for="max_price">Max Price (₹)</label>
+            <input type="number" id="max_price" name="max_price"
+                   class="myapp-filter-input"
+                   placeholder="Max ₹"
+                   value="{{ max_price }}">
+
+            <!-- ✅ APPLY BUTTON -->
+            <button type="submit" class="myapp-btn-primary">
+              Apply Filters
+            </button>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+<!-- Right Side: Product List -->
+<div class="myapp-freelancer-col-right">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="myapp-header-row">
+      <h3 class="section-title mb-0">Products</h3>
+      <p class="mb-0 location-text">
+        📍 <span id="current-city">Detecting...</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Product Listing -->
+  <div class="row mt-3">
+    {% for product in products %}
+      <div class="col-md-3 col-sm-6 mb-4 d-flex justify-content-center">
+        <div class="myapp-card h-100 shadow-sm border-0 rounded-3">
+          <div class="overflow-hidden">
+            {% if product.images.all %}
+              <img src="{{ product.images.all.0.image.url }}" alt="{{ product.title }}"
+                   class="myapp-card-img-top"
+                   style="height:220px; object-fit:contain; background:#fff;">
+            {% else %}
+              <img src="https://via.placeholder.com/220x220?text=No+Image"
+                   class="myapp-card-img-top" style="height:220px; object-fit:contain;">
+            {% endif %}
+          </div>
+
+          <div class="myapp-card-body d-flex flex-column">
+            <h6 class="card-title fw-semibold text-dark" style="min-height:48px;">
+              {{ product.title|truncatechars:50 }}
+            </h6>
+
+            <p class="text-muted small mb-1">
+              <i class="fa fa-tag"></i> {{ product.product_model.brand.category.name }} /
+              {{ product.product_model.brand.name }} / {{ product.product_model.name }}
+            </p>
+
+            <h5 class="fw-bold text-danger mb-2">
+              {% if product.type != 'rent' %}
+                ₹{{ product.price|intcomma }}
+              {% else %}
+                ₹{{ product.rent_per_day|intcomma }}/day
+              {% endif %}
+            </h5>
+
+            <p class="text-muted small mb-3" style="flex-grow:1;">
+              {{ product.description|truncatechars:70 }}
+            </p>
+
+            <a href="{% url 'product_detail' product.id %}" class="btn w-100 fw-bold mt-auto" style="background-color: #d10024; color: white; border: none;">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="alert-warning">No Product Available</div>
+    {% endfor %}
+  </div>
+
+<!-- Pagination
+<div class="pagination mt-4">
+  <span class="current-page">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  <div class="pagination-links">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="previous">Previous</a>
+    {% else %}
+      <span class="previous disabled">Previous</span>
+    {% endif %}
+    
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="next">Next</a>
+    {% else %}
+      <span class="next disabled">Next</span>
+    {% endif %}
+  </div>
+</div> -->
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const cityElement = document.getElementById("current-city");
+
+    let savedCity = localStorage.getItem("userCity");
+    if (savedCity) {
+        cityElement.innerText = savedCity;
+        return;
+    }
+
+    if (!navigator.geolocation) {
+        cityElement.innerText = "Geolocation not supported";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+            );
+            const data = await response.json();
+            const address = data.address || {};
+            const city = address.city || address.town || address.village || "Unknown";
+
+            cityElement.innerText = city;
+            localStorage.setItem("userCity", city);
+
+            await fetch("{% url 'set_location' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ latitude: lat, longitude: lng, city: city })
+            });
+
+        } catch (error) {
+            console.error("City fetch error:", error);
+            cityElement.innerText = "Unable to detect city";
+        }
+    }, () => {
+        cityElement.innerText = "Permission denied";
+    });
+});
+</script>
+
+{% endblock %}

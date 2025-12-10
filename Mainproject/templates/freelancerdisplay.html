@@ -379,8 +379,7 @@
 
   <div class="section-header">
     <h3>Top Freelancers</h3>
-    <p><span id="current-city">📍 {{ current_city_name|default:"Location not found" }}
-</span></p>
+    <p> 📍 <span id="current-city">Detecting...</span></p>
 
   </div>
 
@@ -391,45 +390,50 @@
   <div id="nearby-not-found" class="alert-warning" style="display:none;">
     😕 Nearby freelancers not detected. You can search manually.
   </div>
+<!-- ✅ Manual / default freelancers (Django rendering) -->
+<div id="manual-freelancers">
+  {% if freelancers %}
+    {% for freelancer in freelancers %}
+      <div class="freelancer-box" role="region" aria-label="Freelancer profile">
 
-  <!-- ✅ Manual / default freelancers (Django rendering) -->
-  <div id="manual-freelancers">
-    {% if freelancers %}
-      {% for freelancer in freelancers %}
-      <div class="freelancer-box">
-
-        <div style="display:flex; gap:12px; align-items:center;">
-          <img src="{% if freelancer.profile_image %}{{ freelancer.profile_image.url }}{% else %}{% static 'default_user.png' %}{% endif %}"
-               class="freelancer-img">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <img 
+            src="{% if freelancer.profile_image %}{{ freelancer.profile_image.url }}{% else %}{% static 'default_user.png' %}{% endif %}" 
+            alt="Profile picture of {{ freelancer.first_name }} {{ freelancer.surname }}" 
+            class="freelancer-img"
+          >
 
           <div>
             <strong>
               {{ freelancer.first_name }} {{ freelancer.surname }}
               {% if freelancer.profile_status == 'verified' %}
-              <img src="{% static 'img/verified.png' %}" style="width:16px;">
+                <img src="{% static 'img/verified.png' %}" alt="Verified profile" style="width: 16px;">
               {% endif %}
             </strong>
 
             <div>
-              {% for skill in freelancer.skills.all %}
-                <span class="skill-chip">{{ skill.category.name }}</span>
-              {% empty %}
+              {% if freelancer.skills.all %}
+                {% for skill in freelancer.skills.all %}
+                  <span class="skill-chip">{{ skill.category.name }}</span>
+                {% endfor %}
+              {% else %}
                 <small>No skills listed</small>
-              {% endfor %}
+              {% endif %}
             </div>
           </div>
         </div>
 
-        <a href="{% url 'freelancer_profile' freelancer.id %}" class="btn-profile">
+        <a href="{% url 'freelancer_profile' freelancer.id %}" class="btn-profile" aria-label="View profile of {{ freelancer.first_name }} {{ freelancer.surname }}">
           View Profile
         </a>
 
       </div>
-      {% endfor %}
-    {% else %}
-      <div class="alert-warning">No freelancers found</div>
-    {% endif %}
-  </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert-warning" role="alert">No freelancers found</div>
+  {% endif %}
+</div>
+
 
 </div>
 
@@ -439,35 +443,53 @@
 
 
 <script>
-  function sendLocationToServer(lat, lng) {
-    fetch("{% url 'set_user_location' %}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": "{{ csrf_token }}",
-      },
-      body: JSON.stringify({ latitude: lat, longitude: lng }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log("Location saved:", data);
-      // Optionally reload page or fetch updated freelancers here
-    })
-    .catch(error => console.error("Error saving location:", error));
-  }
+document.addEventListener("DOMContentLoaded", async () => {
+    const cityElement = document.getElementById("current-city");
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function(position) {
-        sendLocationToServer(position.coords.latitude, position.coords.longitude);
-      },
-      function(error) {
-        console.warn("Geolocation error:", error);
-      }
-    );
-  } else {
-    console.warn("Geolocation not supported");
-  }
-</script> 
+    let savedCity = localStorage.getItem("userCity");
+    if (savedCity) {
+        cityElement.innerText = savedCity;
+        return;
+    }
+
+    if (!navigator.geolocation) {
+        cityElement.innerText = "Geolocation not supported";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+            );
+            const data = await response.json();
+            const address = data.address || {};
+            const city = address.city || address.town || address.village || "Unknown";
+
+            cityElement.innerText = city;
+            localStorage.setItem("userCity", city);
+
+            await fetch("{% url 'set_location' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ latitude: lat, longitude: lng, city: city })
+            });
+
+        } catch (error) {
+            console.error("City fetch error:", error);
+            cityElement.innerText = "Unable to detect city";
+        }
+    }, () => {
+        cityElement.innerText = "Permission denied";
+    });
+});
+</script>
+
 
 {% endblock %}

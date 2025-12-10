@@ -365,4 +365,18 @@ border: 2px solid #e91e63;
   });
 </script>
 
+<script>
+document.getElementById('media').addEventListener('change', function() {
+    const files = this.files;
+    for (let file of files) {
+        const isVideo = file.type.startsWith('video');
+        const maxSizeMB = isVideo ? 200 : 20;
+        if (file.size > maxSizeMB * 1024 * 1024) {
+            alert(`File "${file.name}" exceeds the max size of ${maxSizeMB} MB.`);
+            this.value = ''; // Clear file input
+            break;
+        }
+    }
+});
+</script>
 {% endblock %}

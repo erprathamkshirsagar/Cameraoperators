@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.gis.geoip2 import GeoIP2
 from django.db.models import Count, Q
@@ -232,6 +231,34 @@ def dashboard(request):
     all_page_obj = all_paginator.get_page(request.GET.get('page'))  # Pagination for All Products
     header_data = get_header_data(request) # Ensure this function is imported or defined
 
+    # ---------------- Freelancers ----------------
+    freelancers_qs = (
+        UserRegistration.objects
+        .filter(profile_status="verified")
+        .prefetch_related('skills', 'skills__category')
+        .order_by('?')[:12]   # random for homepage slider
+    )
+
+    freelancer_list = []
+
+    for f in freelancers_qs:
+
+        # ✅ Get best skill (highest rate)
+        skill = f.skills.order_by('-rate').first()
+
+        skill_name = skill.category.name if skill and skill.category else "Freelancer"
+        rate = skill.rate if skill and skill.rate else 0
+
+        freelancer_list.append({
+            'id': f.id,
+            'name': f"{f.first_name} {f.surname}",
+            'skill': skill_name,
+            'rate': rate,
+            'image': f.profile_image.url if f.profile_image else '/static/img/default-user.png',
+            'profile_status': f.profile_status,
+        })
+
+
 
     context = {
         'sell_products': sell_page_obj,
@@ -239,6 +266,7 @@ def dashboard(request):
         'resell_products': resell_page_obj,
         'all_products': all_page_obj,  # Pass all products to the template
         'categories': categories,
+        'freelancers': freelancer_list,
         'product_categories': product_categories,
         'selected_category': selected_category,
         'product_type': product_type,  # Pass the selected type to the template
@@ -1130,36 +1158,57 @@ class AddPostView(View):
         return redirect('somewhere')  # redirect after successful post
 
 def gallery(request):
+    # Get the logged-in user ID from session
     user_id = request.session.get("user_id")
     if not user_id:
         messages.error(request, "Please login first.")
         return redirect("login")
 
+    # Get the user object or 404
     user = get_object_or_404(UserRegistration, id=user_id)
 
     if request.method == 'POST':
         files = request.FILES.getlist('media')
+
         if not files:
             messages.error(request, "Please select files to upload.")
         else:
+            # Validate each file's size and type (optional but recommended)
+            video_extensions = ['.mp4', '.webm', '.ogg']
+            max_video_size = 200 * 1024 * 1024  # 200 MB
+            max_photo_size = 20 * 1024 * 1024   # 20 MB
+
+            for f in files:
+                filename = f.name.lower()
+                is_video = any(filename.endswith(ext) for ext in video_extensions)
+
+                # Validate file size based on type
+                max_size = max_video_size if is_video else max_photo_size
+                if f.size > max_size:
+                    file_type = "video" if is_video else "photo"
+                    messages.error(request, f"{file_type.capitalize()} '{f.name}' exceeds the maximum allowed size of {max_size // (1024*1024)} MB.")
+                    return redirect('gallery')
+
+            # Save valid files
             for f in files:
                 GalleryItem.objects.create(user=user, media=f)
+
             messages.success(request, f"{len(files)} file(s) uploaded successfully!")
             return redirect('gallery')
 
+    # Retrieve user's gallery items ordered by latest first
     gallery_items = GalleryItem.objects.filter(user=user).order_by('-uploaded_at')
 
-    # Mark videos
+    # Mark which items are videos (for template display logic)
     video_extensions = ['.mp4', '.webm', '.ogg']
     for item in gallery_items:
         filename = item.media.name.lower()
         item.is_video = any(filename.endswith(ext) for ext in video_extensions)
 
-    # Get additional context
-    context = get_header_data(request)
+    # Additional context for rendering the page
+    context = get_header_data(request)  # assuming this returns a dict
     categories = Category.objects.filter(parent__isnull=True)  # main categories
 
-    # Merge everything into context dictionary
     context.update({
         'gallery_items': gallery_items,
         'categories': categories,

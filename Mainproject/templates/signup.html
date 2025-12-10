@@ -8,145 +8,236 @@
 
 	<br>
 	<br>
-	<!-- REGISTER FORM -->
-<div class="container mt-4">
+<!-- REGISTER FORM -->
+<div class="container mt-4 mb-5">
     <h2 class="mb-4">Create an Account</h2>
-    <form method="post" action="">
+
+    <form method="post" novalidate>
         {% csrf_token %}
 
-        <!-- Personal Details -->
+        <!-- ================= Personal Details ================= -->
         <div class="row">
             <div class="col-md-4 mb-3">
-                <label for="first_name">First Name *</label>
-                <input type="text" class="form-control" name="first_name" id="first_name" required>
+                <label class="form-label">First Name *</label>
+                <input type="text" class="form-control" name="first_name" required>
             </div>
+
             <div class="col-md-4 mb-3">
-                <label for="middle_name">Middle Name</label>
-                <input type="text" class="form-control" name="middle_name" id="middle_name">
+                <label class="form-label">Middle Name</label>
+                <input type="text" class="form-control" name="middle_name">
             </div>
+
             <div class="col-md-4 mb-3">
-                <label for="surname">Surname *</label>
-                <input type="text" class="form-control" name="surname" id="surname" required>
+                <label class="form-label">Surname *</label>
+                <input type="text" class="form-control" name="surname" required>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="dob">Date of Birth *</label>
-                <input type="date" class="form-control" name="dob" id="dob" required>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Date of Birth *</label>
+                <input type="date" class="form-control" name="dob" required>
             </div>
         </div>
 
-        <!-- Contact Details -->
+        <!-- ================= Contact Details ================= -->
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="mobile">Mobile Number *</label>
-                <input type="text" class="form-control" name="mobile" id="mobile" required>
+                <label class="form-label">Mobile Number *</label>
+                <input type="text"
+                       class="form-control"
+                       name="mobile"
+                       maxlength="10"
+                       pattern="\d{10}"
+                       title="Enter 10 digit mobile number"
+                       required>
             </div>
+
             <div class="col-md-6 mb-3">
-                <label for="insta_id">Instagram ID</label>
-                <input type="text" class="form-control" name="insta_id" id="insta_id">
+                <label class="form-label">Instagram ID</label>
+                <input type="text" class="form-control" name="insta_id">
             </div>
         </div>
 
-        <!-- Address -->
+        <!-- ================= Address ================= -->
         <div class="mb-3">
-            <label for="address">Address *</label>
-            <textarea class="form-control" name="address" id="address" rows="2" required></textarea>
+            <label class="form-label">Address *</label>
+            <textarea class="form-control" name="address" rows="2" required></textarea>
         </div>
 
-        <!-- Location Selection -->
-        <div class="row">
-            <!-- Country -->
-            <div class="col-md-3 mb-3">
-                <label for="country">Country *</label>
-                <select class="form-control" name="country" id="country" required>
-                    <option value="">-- Select Country --</option>
-                    {% for country in countries %}
-                        <option value="{{ country.id }}">{{ country.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+        <!-- ================= Location ================= -->
+       <div class="row">
+    <div class="col-md-3 mb-3">
+        <label class="form-label">Country *</label>
+        <select class="form-control" name="country" id="country" required>
+            <option value="">-- Select Country --</option>
+            {% for country in countries %}
+                <option value="{{ country.id }}">{{ country.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-            <!-- State -->
-            <div class="col-md-3 mb-3">
-                <label for="state">State *</label>
-                <select class="form-control" name="state" id="state" required disabled>
-                    <option value="">-- Select State --</option>
-                </select>
-            </div>
+    <div class="col-md-3 mb-3">
+        <label class="form-label">State *</label>
+        <select class="form-control" name="state" id="state" required disabled>
+            <option value="">-- Select State --</option>
+        </select>
+    </div>
 
-            <!-- City -->
-            <div class="col-md-3 mb-3">
-                <label for="city">City *</label>
-                <select class="form-control" name="city" id="city" required disabled>
-                    <option value="">-- Select City --</option>
-                </select>
-            </div>
+    <div class="col-md-3 mb-3">
+        <label class="form-label">City *</label>
+        <select class="form-control" name="city" id="city" required disabled>
+            <option value="">-- Select City --</option>
+        </select>
+    </div>
 
-            <!-- Taluka -->
-            <div class="col-md-3 mb-3">
-                <label for="taluka">Taluka *</label>
-                <select class="form-control" name="taluka" id="taluka" required disabled>
-                    <option value="">-- Select Taluka --</option>
-                </select>
-            </div>
+    <div class="col-md-3 mb-3">
+        <label class="form-label">Taluka *</label>
+        <select class="form-control" name="taluka" id="taluka" required disabled>
+            <option value="">-- Select Taluka --</option>
+        </select>
+    </div>
 
-            <!-- Village -->
-            <div class="col-md-3 mb-3 mt-3">
-                <label for="village">Village *</label>
-                <select class="form-control" name="village" id="village" required disabled>
-                    <option value="">-- Select Village --</option>
-                </select>
-            </div>
+    <div class="col-md-3 mb-3">
+        <label class="form-label">Village *</label>
+        <select class="form-control" name="village" id="village" required disabled>
+            <option value="">-- Select Village --</option>
+        </select>
+    </div>
+</div>
 
-			
-        <!-- Pincode -->
+
+        <!-- ================= Pincode ================= -->
         <div class="row">
             <div class="col-md-4 mb-3">
-                <label for="pincode">Pincode *</label>
-                <input type="text" class="form-control" name="pincode" id="pincode" maxlength="6" pattern="\d{6}" 
-                       title="Enter 6 digit Pincode" required>
+                <label class="form-label">Pincode *</label>
+                <input type="text"
+                       class="form-control"
+                       name="pincode"
+                       maxlength="6"
+                       pattern="\d{6}"
+                       title="Enter 6 digit pincode"
+                       required>
             </div>
         </div>
-        </div>
 
-
-        <!-- Firm Details -->
+        <!-- ================= Firm Details ================= -->
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="firm_name">Firm Name (if any)</label>
-                <input type="text" class="form-control" name="firm_name" id="firm_name">
+                <label class="form-label">Firm Name</label>
+                <input type="text" class="form-control" name="firm_name">
             </div>
+
             <div class="col-md-6 mb-3">
-                <label for="firm_address">Firm Address</label>
-                <input type="text" class="form-control" name="firm_address" id="firm_address">
+                <label class="form-label">Firm Address</label>
+                <input type="text" class="form-control" name="firm_address">
             </div>
         </div>
 
-        <!-- Login Credentials -->
+        <!-- ================= Login Credentials ================= -->
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="email">Email ID *</label>
-                <input type="email" class="form-control" name="email" id="email" required>
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-control" name="email" required>
             </div>
+
             <div class="col-md-3 mb-3">
-                <label for="password">Password *</label>
-                <input type="password" class="form-control" name="password" id="password" required>
+                <label class="form-label">Password *</label>
+                <input type="password" class="form-control" name="password" required>
             </div>
+
             <div class="col-md-3 mb-3">
-                <label for="confirm_password">Confirm Password *</label>
-                <input type="password" class="form-control" name="confirm_password" id="confirm_password" required>
+                <label class="form-label">Confirm Password *</label>
+                <input type="password" class="form-control" name="confirm_password" required>
             </div>
         </div>
-<br>
-        <button type="submit" class="btn btn-primary mt-3">Register</button>
+
+        <!-- ================= Submit ================= -->
+        <button type="submit" class="btn btn-primary mt-3 px-4">
+            Register
+        </button>
     </form>
 </div>
 <!-- /REGISTER FORM -->
 
+	<br>
+	<br>
+<script>
+const stateSel   = document.getElementById("state");
+const citySel    = document.getElementById("city");
+const talukaSel  = document.getElementById("taluka");
+const villageSel = document.getElementById("village");
 
-	<br>
-	<br>
+/* ---------- COUNTRY → STATE ---------- */
+document.getElementById("country").addEventListener("change", function () {
+    const countryId = this.value;
+
+    reset(stateSel, "-- Select State --");
+    reset(citySel, "-- Select City --");
+    reset(talukaSel, "-- Select Taluka --");
+    reset(villageSel, "-- Select Village --");
+
+    if (!countryId) return;
+
+    fetch(`/ajax/load-states/?country_id=${countryId}`)
+        .then(res => res.json())
+        .then(data => fill(stateSel, data));
+});
+
+/* ---------- STATE → CITY ---------- */
+stateSel.addEventListener("change", function () {
+    const stateId = this.value;
+
+    reset(citySel, "-- Select City --");
+    reset(talukaSel, "-- Select Taluka --");
+    reset(villageSel, "-- Select Village --");
+
+    if (!stateId) return;
+
+    fetch(`/ajax/load-cities/?state_id=${stateId}`)
+        .then(res => res.json())
+        .then(data => fill(citySel, data));
+});
+
+/* ---------- CITY → TALUKA ---------- */
+citySel.addEventListener("change", function () {
+    const cityId = this.value;
+
+    reset(talukaSel, "-- Select Taluka --");
+    reset(villageSel, "-- Select Village --");
+
+    if (!cityId) return;
+
+    fetch(`/ajax/load-talukas/?city_id=${cityId}`)
+        .then(res => res.json())
+        .then(data => fill(talukaSel, data));
+});
+
+/* ---------- TALUKA → VILLAGE ---------- */
+talukaSel.addEventListener("change", function () {
+    const talukaId = this.value;
+
+    reset(villageSel, "-- Select Village --");
+
+    if (!talukaId) return;
+
+    fetch(`/ajax/load-villages/?taluka_id=${talukaId}`)
+        .then(res => res.json())
+        .then(data => fill(villageSel, data));
+});
+
+/* ---------- Helper Functions ---------- */
+function reset(select, label) {
+    select.innerHTML = `<option value="">${label}</option>`;
+    select.disabled = true;
+}
+
+function fill(select, items) {
+    select.disabled = false;
+    items.forEach(item => {
+        select.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+    });
+}
+</script>
 
 {% endblock %}

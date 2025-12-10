@@ -275,98 +275,57 @@
 				<!-- row -->
 				<div class="row">
 					<div class="col-md-4 col-xs-6">
-						<div class="section-title">
-							<h4 class="title">Top Freelancer</h4>
-							<div class="section-nav">
-								<div id="slick-nav-3" class="products-slick-nav"></div>
-							</div>
-						</div>
+    <div class="section-title">
+        <h4 class="title">Top Freelancer</h4>
+        <div class="section-nav">
+            <div id="slick-nav-3" class="products-slick-nav"></div>
+        </div>
+    </div>
 
-						<div class="products-widget-slick" data-nav="#slick-nav-3">
-							<div>
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/product07.png' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Category</p>
-										<h3 class="product-name"><a href="#">product name goes here</a></h3>
-										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-									</div>
-								</div>
-								<!-- /product widget -->
+    <div class="products-widget-slick" data-nav="#slick-nav-3">
 
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/product08.png' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Category</p>
-										<h3 class="product-name"><a href="#">product name goes here</a></h3>
-										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-									</div>
-								</div>
-								<!-- /product widget -->
+        {% for f in freelancers %}
+        <div>
+            <!-- Freelancer widget -->
+            <div class="product-widget">
+                <div class="product-img">
+                    <img src="{{ f.image }}" alt="{{ f.name }}">
+                </div>
 
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/product09.png' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Category</p>
-										<h3 class="product-name"><a href="#">product name goes here</a></h3>
-										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-									</div>
-								</div>
-								<!-- product widget -->
-							</div>
+                <div class="product-body">
+                    <p class="product-category">{{ f.skill }}</p>
 
-							<div>
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/product01.png' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Category</p>
-										<h3 class="product-name"><a href="#">product name goes here</a></h3>
-										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-									</div>
-								</div>
-								<!-- /product widget -->
+                    <h3 class="product-name">
+						<a href="{% url 'freelancer_profile' f.id %}"
+						style="display:inline-flex; align-items:center; gap:6px;">
 
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/product02.png' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Category</p>
-										<h3 class="product-name"><a href="#">product name goes here</a></h3>
-										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-									</div>
-								</div>
-								<!-- /product widget -->
+							<span>{{ f.name }}</span>
 
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/product03.png' %}" alt="">
+							{% if f.profile_status == 'verified' %}
+								<img src="{% static 'img/verified.png' %}"
+									alt="Verified"
+									title="Verified Freelancer"
+									style="width:14px; height:14px;">
+							{% endif %}
 
-									</div>
-									<div class="product-body">
-										<p class="product-category">Category</p>
-										<h3 class="product-name"><a href="#">product name goes here</a></h3>
-										<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
-									</div>
-								</div>
-								<!-- product widget -->
-							</div>
-						</div>
-					</div>
+						</a>
+					</h3>
+
+
+
+                    <h4 class="product-price">
+                        {{ f.rate }}
+                        <span style="font-size:12px; font-weight:400;"> / day</span>
+                    </h4>
+                </div>
+            </div>
+            <!-- /Freelancer widget -->
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
 
 					<div class="col-md-4 col-xs-6">
 						<div class="section-title">

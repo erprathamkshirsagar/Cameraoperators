@@ -440,54 +440,88 @@
 </div>
 </div>
 <br>
-
-
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     const cityElement = document.getElementById("current-city");
 
-    let savedCity = localStorage.getItem("userCity");
-    if (savedCity) {
-        cityElement.innerText = savedCity;
-        return;
-    }
+    if (!cityElement) return;
 
     if (!navigator.geolocation) {
         cityElement.innerText = "Geolocation not supported";
         return;
     }
 
-    navigator.geolocation.getCurrentPosition(async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+    const CACHE_TIME = 2 * 60 * 1000; // 2 minutes
+    const stored = JSON.parse(localStorage.getItem("userLocation") || "null");
 
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-            );
-            const data = await response.json();
-            const address = data.address || {};
-            const city = address.city || address.town || address.village || "Unknown";
+    // ✅ Show cached city instantly if recent
+    if (stored && stored.city && Date.now() - stored.timestamp < CACHE_TIME) {
+        cityElement.innerText = stored.city;
+    } else {
+        cityElement.innerText = "Detecting location…";
+    }
 
-            cityElement.innerText = city;
-            localStorage.setItem("userCity", city);
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
 
-            await fetch("{% url 'set_location' %}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}"
-                },
-                body: JSON.stringify({ latitude: lat, longitude: lng, city: city })
-            });
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+                );
 
-        } catch (error) {
-            console.error("City fetch error:", error);
-            cityElement.innerText = "Unable to detect city";
+                const data = await response.json();
+                const address = data.address || {};
+
+                const newCity =
+                    address.city ||
+                    address.town ||
+                    address.village ||
+                    address.county ||
+                    "Unknown";
+
+                // ✅ Update ONLY if city actually changed
+                if (!stored || stored.city !== newCity) {
+                    cityElement.innerText = newCity;
+
+                    localStorage.setItem("userLocation", JSON.stringify({
+                        city: newCity,
+                        lat: lat,
+                        lng: lng,
+                        timestamp: Date.now()
+                    }));
+
+                    // ✅ send to server
+                    await fetch("{% url 'set_location' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: JSON.stringify({
+                            latitude: lat,
+                            longitude: lng
+                        })
+                    });
+                } else {
+                    cityElement.innerText = stored.city;
+                }
+
+            } catch (error) {
+                console.error("Reverse geocode error:", error);
+                cityElement.innerText = stored?.city || "Location unavailable";
+            }
+        },
+        () => {
+            cityElement.innerText = stored?.city || "Permission denied";
+        },
+        {
+            enableHighAccuracy: false, // ✅ MUCH faster
+            maximumAge: 60000,         // ✅ reuse GPS if recent
+            timeout: 7000              // ✅ faster response
         }
-    }, () => {
-        cityElement.innerText = "Permission denied";
-    });
+    );
 });
 </script>
 

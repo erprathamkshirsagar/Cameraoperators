@@ -185,95 +185,120 @@ def login(request):
         "categories": categories
     })
 from django.core.paginator import Paginator
-
+from django.core.paginator import Paginator
+from django.db.models.functions import Random
+from django.db.models import Q
 def dashboard(request):
-    # Get the selected category and section type (sell, rent, etc.)
-    selected_category = request.GET.get('category', None)
-    product_type = request.GET.get('type', 'all')  # Default to 'all' if no type is provided
+    selected_category = request.GET.get('category')
+    product_type = request.GET.get('type', 'all')
 
-    # Fetch categories for the filter
+    # ---------------- Categories ----------------
     categories = Category.objects.filter(parent__isnull=True)
     product_parent = Category.objects.filter(name="Products").first()
-    product_categories = Category.objects.filter(parent=product_parent) if product_parent else Category.objects.none()
+    product_categories = (
+        Category.objects.filter(parent=product_parent) if product_parent else Category.objects.none()
+    )
 
-    # Base product query (fetching all products)
-    products = ProductItem.objects.all()
+    # Define mandatory categories by their names (exact match)
+    mandatory_names = ['Camera', 'Light', 'Flash', 'Battery', 'Are The Fix']
 
-    # Apply category filter for all products if a category is selected
+    # Query mandatory categories (filter by name)
+    mandatory_categories = product_categories.filter(name__in=mandatory_names)
+
+    # Remaining categories excluding mandatory ones
+    other_categories = product_categories.exclude(name__in=mandatory_names)
+
+    # Slice other categories to show only first N (e.g. 5)
+    sliced_other_categories = other_categories[:5]
+
+    # Combine mandatory + sliced other categories
+    # Use `list()` to force evaluation before combining QuerySets and Lists
+    final_categories = list(mandatory_categories) + list(sliced_other_categories)
+
+    # If you want to keep original order, sort or reorder here
+    # For example, order mandatory categories by your manual list order:
+    mandatory_order_map = {name: i for i, name in enumerate(mandatory_names)}
+    final_categories.sort(key=lambda c: mandatory_order_map.get(c.name, 1000))
+
+    # ---------------- Base Products ----------------
+    base_products = ProductItem.objects.all()
+
+    # ---------------- Products by type (no category filter here) ----------------
+    sell_products_qs = ProductItem.objects.filter(type='sell').order_by(Random())
+    rent_products_qs = ProductItem.objects.filter(type='rent').order_by(Random())
+    resell_products_qs = ProductItem.objects.filter(type='resell').order_by(Random())
+
+    # ---------------- All products (apply category filter if selected) ----------------
+    all_products_qs = base_products.order_by(Random())
     if selected_category:
-        products = products.filter(product_model__brand__category_id=selected_category)
+        all_products_qs = all_products_qs.filter(product_model__brand__category_id=selected_category)
 
-    # Separate queries for sell, rent, resell, and all products, order them randomly
-    if product_type == 'sell':
-        products = products.filter(type='sell').order_by('?')
-    elif product_type == 'rent':
-        products = products.filter(type='rent').order_by('?')
-    elif product_type == 'resell':
-        products = products.filter(type='resell').order_by('?')
+    # ---------------- Pagination ----------------
+    page_number = request.GET.get('page')
 
-    # All products - combines all product types with the category filter (if any) and orders them randomly
-    all_products = products.order_by('?')
+    sell_paginator = Paginator(sell_products_qs, 12)
+    rent_paginator = Paginator(rent_products_qs, 12)
+    resell_paginator = Paginator(resell_products_qs, 12)
+    all_paginator = Paginator(all_products_qs, 12)
 
-    # Pagination logic - order the products randomly
-    sell_products = ProductItem.objects.filter(type='sell').order_by('?')
-    rent_products = ProductItem.objects.filter(type='rent').order_by('?')
-    resell_products = ProductItem.objects.filter(type='resell').order_by('?')
+    sell_page_obj = sell_paginator.get_page(page_number)
+    rent_page_obj = rent_paginator.get_page(page_number)
+    resell_page_obj = resell_paginator.get_page(page_number)
+    all_page_obj = all_paginator.get_page(page_number)
 
-    sell_paginator = Paginator(sell_products, 12)  # Show 12 sell products per page
-    rent_paginator = Paginator(rent_products, 12)
-    resell_paginator = Paginator(resell_products, 12)
-    all_paginator = Paginator(all_products, 12)  # Show 12 all products per page
+    # ---------------- Chunk list helper ----------------
+    def chunk_list(lst, n):
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
 
-    # Get the page object for each section
-    sell_page_obj = sell_paginator.get_page(request.GET.get('page'))
-    rent_page_obj = rent_paginator.get_page(request.GET.get('page'))
-    resell_page_obj = resell_paginator.get_page(request.GET.get('page'))
-    all_page_obj = all_paginator.get_page(request.GET.get('page'))  # Pagination for All Products
-    header_data = get_header_data(request) # Ensure this function is imported or defined
+    sell_chunks = list(chunk_list(list(sell_page_obj), 3))
+    rent_chunks = list(chunk_list(list(rent_page_obj), 3))
+    resell_chunks = list(chunk_list(list(resell_page_obj), 3))
+    all_chunks = list(chunk_list(list(all_page_obj), 3))
 
     # ---------------- Freelancers ----------------
     freelancers_qs = (
         UserRegistration.objects
         .filter(profile_status="verified")
+        .exclude(Q(profile_image__isnull=True) | Q(profile_image=''))
         .prefetch_related('skills', 'skills__category')
-        .order_by('?')[:12]   # random for homepage slider
+        .order_by(Random())
     )
 
-    freelancer_list = []
-
+    freelancers = []
     for f in freelancers_qs:
-
-        # ✅ Get best skill (highest rate)
         skill = f.skills.order_by('-rate').first()
-
-        skill_name = skill.category.name if skill and skill.category else "Freelancer"
-        rate = skill.rate if skill and skill.rate else 0
-
-        freelancer_list.append({
+        if not skill:
+            continue
+        freelancers.append({
             'id': f.id,
             'name': f"{f.first_name} {f.surname}",
-            'skill': skill_name,
-            'rate': rate,
-            'image': f.profile_image.url if f.profile_image else '/static/img/default-user.png',
-            'profile_status': f.profile_status,
+            'skill': skill.category.name if skill.category else skill.name,
+            'rate': skill.rate or 0,
+            'image': f.profile_image.url,
         })
 
+    freelancer_chunks = list(chunk_list(freelancers, 3))
 
+    # ---------------- Header Data ----------------
+    header_data = get_header_data(request)
 
+    # ---------------- Context ----------------
     context = {
-        'sell_products': sell_page_obj,
-        'rent_products': rent_page_obj,
-        'resell_products': resell_page_obj,
-        'all_products': all_page_obj,  # Pass all products to the template
+        'sell_chunks': sell_chunks,
+        'rent_chunks': rent_chunks,
+        'resell_chunks': resell_chunks,
+        'all_chunks': all_chunks,
+        'freelancer_chunks': freelancer_chunks,
         'categories': categories,
-        'freelancers': freelancer_list,
-        'product_categories': product_categories,
+        'product_categories': final_categories,  # Pass final combined categories here
         'selected_category': selected_category,
-        'product_type': product_type,  # Pass the selected type to the template
+        'product_type': product_type,
     }
     context.update(header_data)
 
     return render(request, "index.html", context)
+
 
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -329,30 +354,32 @@ def search_suggestions(request):
             Q(skills__category__name__icontains=query)
         ).distinct()[:5]
 
-        for f in freelancers:
-            # Get Skill Name
-            skill_obj = f.skills.first()
-            if skill_obj and hasattr(skill_obj, 'category'):
-                top_skill = skill_obj.category.name
-            elif skill_obj and hasattr(skill_obj, 'name'):
-                top_skill = skill_obj.name
-            else:
-                top_skill = "Freelancer"
-            
-            # Get Profile Image safely
-            # Assuming the field name is 'profile_image' based on your previous errors
-            if f.profile_image:
-                image_url = f.profile_image.url
-            else:
-                image_url = DEFAULT_USER_IMG
+    for f in freelancers:
+        # ❌ Must have profile image
+        if not f.profile_image:
+            continue
 
-            results.append({
-                'category': 'Freelancer',
-                'name': f"{f.first_name} {f.surname}",
-                'sub_text': top_skill,
-                'image': image_url, # <--- Added Image
-                'url': reverse('freelancer_profile', args=[f.id])
-            })
+        # ❌ Must have at least one skill
+        skill_obj = f.skills.first()
+        if not skill_obj:
+            continue
+
+        # ✅ Skill name
+        if hasattr(skill_obj, 'category') and skill_obj.category:
+            top_skill = skill_obj.category.name
+        elif hasattr(skill_obj, 'name'):
+            top_skill = skill_obj.name
+        else:
+            continue  # invalid skill
+
+        results.append({
+            'category': 'Freelancer',
+            'name': f"{f.first_name} {f.surname}",
+            'sub_text': top_skill,
+            'image': f.profile_image.url,  # always exists now
+            'url': reverse('freelancer_profile', args=[f.id]),
+        })
+
 
     return JsonResponse({'results': results})
 

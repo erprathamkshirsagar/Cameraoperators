@@ -322,14 +322,13 @@ label.fw-bold {
         <!-- Category -->
         <div class="col-md-4">
             <label class="form-label fw-bold" for="categorySelect">Category</label>
-            <select id="categorySelect" class="form-select" onchange="location='?category='+this.value" required>
+            <select id="categorySelect" class="form-select" onchange="updateUrlParam('category', this.value)" required>
                 <option value="">-- Select Category --</option>
                 {% for c in product_categories %}
-    <option value="{{ c.id }}" {% if selected_category == c.id|stringformat:'s' %}selected{% endif %}>
-        {{ c.name }}
-    </option>
-{% endfor %}
-
+                    <option value="{{ c.id }}" {% if selected_category == c.id|stringformat:'s' %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                {% endfor %}
             </select>
         </div>
 
@@ -338,7 +337,7 @@ label.fw-bold {
             <label class="form-label fw-bold" for="brandSelect">Brand</label>
             <select id="brandSelect" class="form-select" 
                     {% if not brands %}disabled{% endif %}
-                    onchange="location='?category={{ selected_category }}&brand='+this.value" required>
+                    onchange="updateUrlParam('brand', this.value)" required>
                 <option value="">-- Select Brand --</option>
                 {% for b in brands %}
                     <option value="{{ b.id }}" {% if selected_brand == b.id|stringformat:'s' %}selected{% endif %}>
@@ -518,9 +517,6 @@ function openUpdateModal(id, title, price, rent, description) {
     var updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
     updateModal.show();
 }
-</script>
-
-<script>
 function showFields() {
     let type = document.getElementById("productType").value;
 
@@ -544,5 +540,30 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("priceBox").style.display = "none";
     document.getElementById("rentBox").style.display = "none";
 });
+</script>
+
+
+<script>
+function updateUrlParam(param, value) {
+    const url = new URL(window.location.href);
+    
+    if (value) {
+        url.searchParams.set(param, value);
+    } else {
+        url.searchParams.delete(param);
+    }
+
+    // Reset dependent params when parent changes
+    if (param === 'category') {
+        url.searchParams.delete('brand');
+        url.searchParams.delete('model');
+    }
+    if (param === 'brand') {
+        url.searchParams.delete('model');
+    }
+
+    // Navigate to the updated URL (reloading page with correct params)
+    window.location.href = url.toString();
+}
 </script>
 {% endblock %}

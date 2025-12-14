@@ -1,3 +1,5 @@
+		{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -10,9 +12,9 @@
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Font Awesome 5 (CDN) -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
+<link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+<link rel="icon" href="{% static 'cameraico.png' %}" type="image/png" />
 		<!-- Bootstrap -->
-		{% load static %}
 		<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
 		<link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
 		<link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>

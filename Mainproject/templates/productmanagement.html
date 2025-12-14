@@ -322,43 +322,44 @@ label.fw-bold {
         <!-- Category -->
         <div class="col-md-4">
             <label class="form-label fw-bold" for="categorySelect">Category</label>
-            <select id="categorySelect" class="form-select" onchange="updateUrlParam('category', this.value)" required>
-                <option value="">-- Select Category --</option>
-                {% for c in product_categories %}
-                    <option value="{{ c.id }}" {% if selected_category == c.id|stringformat:'s' %}selected{% endif %}>
-                        {{ c.name }}
-                    </option>
-                {% endfor %}
-            </select>
+            <select id="categorySelect" name="category" class="form-select" onchange="updateUrlParam('category', this.value)" required>
+    <option value="">-- Select Category --</option>
+    {% for c in product_categories %}
+        <option value="{{ c.id }}" {% if selected_category == c.id|stringformat:'s' %}selected{% endif %}>
+            {{ c.name }}
+        </option>
+    {% endfor %}
+</select>
         </div>
 
         <!-- Brand -->
         <div class="col-md-4">
             <label class="form-label fw-bold" for="brandSelect">Brand</label>
-            <select id="brandSelect" class="form-select" 
-                    {% if not brands %}disabled{% endif %}
-                    onchange="updateUrlParam('brand', this.value)" required>
-                <option value="">-- Select Brand --</option>
-                {% for b in brands %}
-                    <option value="{{ b.id }}" {% if selected_brand == b.id|stringformat:'s' %}selected{% endif %}>
-                        {{ b.name }}
-                    </option>
-                {% endfor %}
-            </select>
+            <select id="brandSelect" name="brand" class="form-select" 
+        {% if not brands %}disabled{% endif %}
+        onchange="updateUrlParam('brand', this.value)" required>
+    <option value="">-- Select Brand --</option>
+    {% for b in brands %}
+        <option value="{{ b.id }}" {% if selected_brand == b.id|stringformat:'s' %}selected{% endif %}>
+            {{ b.name }}
+        </option>
+    {% endfor %}
+</select>
         </div>
 
         <!-- Model -->
         <div class="col-md-4">
             <label class="form-label fw-bold" for="modelSelect">Model</label>
-            <select id="modelSelect" class="form-select" name="product_model"
-                    {% if not models %}disabled{% endif %} required>
-                <option value="">-- Select Model --</option>
-                {% for m in models %}
-                    <option value="{{ m.id }}" {% if edit_product and edit_product.product_model.id == m.id %}selected{% endif %}>
-                        {{ m.name }}
-                    </option>
-                {% endfor %}
-            </select>
+           <select id="modelSelect" name="model" class="form-select"
+        {% if not models %}disabled{% endif %}
+        onchange="updateUrlParam('model', this.value)" required>
+    <option value="">-- Select Model --</option>
+    {% for m in models %}
+        <option value="{{ m.id }}" {% if selected_model == m.id|stringformat:'s' %}selected{% endif %}>
+            {{ m.name }}
+        </option>
+    {% endfor %}
+</select>
         </div>
     </div>
 
@@ -546,14 +547,13 @@ document.addEventListener("DOMContentLoaded", function() {
 <script>
 function updateUrlParam(param, value) {
     const url = new URL(window.location.href);
-    
+
     if (value) {
         url.searchParams.set(param, value);
     } else {
         url.searchParams.delete(param);
     }
 
-    // Reset dependent params when parent changes
     if (param === 'category') {
         url.searchParams.delete('brand');
         url.searchParams.delete('model');
@@ -562,8 +562,8 @@ function updateUrlParam(param, value) {
         url.searchParams.delete('model');
     }
 
-    // Navigate to the updated URL (reloading page with correct params)
     window.location.href = url.toString();
 }
+
 </script>
 {% endblock %}
